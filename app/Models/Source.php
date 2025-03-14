@@ -171,13 +171,67 @@ class Source extends Model
     }
 
     /**
+     * Get the YouTube content data.
+     *
+     * @return array|null
+     */
+    public function getYouTubeContent(): ?array
+    {
+        if (!$this->isYouTube()) {
+            return null;
+        }
+
+        try {
+            // If it's just a URL string (not processed yet)
+            if (filter_var($this->data, FILTER_VALIDATE_URL)) {
+                return [
+                    'url' => $this->data,
+                    'video_id' => null,
+                    'title' => null,
+                    'transcript' => null,
+                    'plain_text' => null,
+                    'error' => null,
+                    'processing' => true,
+                ];
+            }
+
+            $data = json_decode($this->data, true);
+            
+            return [
+                'url' => $data['url'] ?? null,
+                'video_id' => $data['video_id'] ?? null,
+                'title' => $data['title'] ?? null,
+                'author' => $data['author'] ?? null,
+                'thumbnail_url' => $data['thumbnail_url'] ?? null,
+                'transcript' => $data['transcript'] ?? null,
+                'plain_text' => $data['plain_text'] ?? null,
+                'available_languages' => $data['available_languages'] ?? [],
+                'language_used' => $data['language_used'] ?? null,
+                'extracted_at' => $data['extracted_at'] ?? null,
+                'error' => $data['error'] ?? null,
+                'processing' => false,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'url' => $this->data,
+                'video_id' => null,
+                'title' => null,
+                'transcript' => null,
+                'plain_text' => null,
+                'error' => 'Failed to parse YouTube data',
+                'processing' => false,
+            ];
+        }
+    }
+
+    /**
      * Check if the source has an extraction error.
      *
      * @return bool
      */
     public function hasExtractionError(): bool
     {
-        if (!$this->isWebsite()) {
+        if (!$this->isWebsite() && !$this->isYouTube()) {
             return false;
         }
 
@@ -196,7 +250,7 @@ class Source extends Model
      */
     public function getExtractionError(): ?string
     {
-        if (!$this->isWebsite()) {
+        if (!$this->isWebsite() && !$this->isYouTube()) {
             return null;
         }
 

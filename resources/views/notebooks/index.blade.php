@@ -176,23 +176,23 @@
                     <input type="hidden" id="sort-by" name="sort" value="{{ request('sort', 'recent') }}">
                 </form>
                 <div class="relative">
-                    <button id="sort-dropdown-btn" type="button" class="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
+                    <button id="sort-dropdown-btn" type="button" class="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white/20 dark:bg-gray-800/40 backdrop-blur-lg border border-gray-200/20 dark:border-gray-500/20 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                         </svg>
                         <span id="current-sort">{{ request('sort') === 'alpha' ? 'Alphabetical' : (request('sort') === 'modified' ? 'Last Modified' : 'Most Recent') }}</span>
                     </button>
-                    <div id="sort-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 z-10">
+                    <div id="sort-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 z-10">
                         <div class="py-1">
-                            <button data-sort="recent" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Most Recent</button>
-                            <button data-sort="alpha" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Alphabetical</button>
-                            <button data-sort="modified" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Last Modified</button>
+                            <button data-sort="recent" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">Most Recent</button>
+                            <button data-sort="alpha" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">Alphabetical</button>
+                            <button data-sort="modified" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">Last Modified</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Create New Button -->
-                <button type="button" onclick="openModal('create-notebook')" class="flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 shadow-sm hover:shadow transform hover:scale-105 transition-all duration-200">
+                <button type="button" onclick="openModal('create-notebook')" class="flex items-center px-4 py-2 bg-blue-600/90 backdrop-blur-sm border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 shadow-sm hover:shadow transform hover:scale-105 transition-all duration-200">
                     <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -205,14 +205,14 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Empty State -->
-            <div style="{{ count($notebooks) ? 'display: none;' : '' }}" class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+            <div style="{{ count($notebooks) ? 'display: none;' : '' }}" class="text-center py-12 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 rounded-xl shadow-sm">
                 <svg class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">No notebooks yet</h3>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating your first notebook.</p>
                 <div class="mt-6">
-                    <button type="button" onclick="openModal('create-notebook')" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                    <button type="button" onclick="openModal('create-notebook')" class="inline-flex items-center px-4 py-2 bg-blue-600/90 backdrop-blur-sm border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                         <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -225,7 +225,7 @@
             <div id="grid-view" style="{{ count($notebooks) ? '' : 'display: none;' }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach ($notebooks as $notebook)
                 <div class="relative group">
-                    <div class="block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 border border-gray-100 dark:border-gray-700">
+                    <div class="block p-6 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 border border-gray-200/20 dark:border-gray-700/20">
                         <a href="{{ route('notebooks.show', $notebook) }}" class="block">
                             <div class="flex justify-between items-start">
                                 <div>
@@ -235,17 +235,17 @@
                                     </p>
                                 </div>
                                 <div class="relative">
-                                    <button id="menu-button-{{ $notebook->id }}" type="button" onclick="toggleMenu('{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <button id="menu-button-{{ $notebook->id }}" type="button" onclick="toggleMenu('{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                         </svg>
                                     </button>
-                                    <div id="menu-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10 border border-gray-200 dark:border-gray-700">
+                                    <div id="menu-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-10 border border-gray-200/20 dark:border-gray-700/20">
                                         <div class="py-1">
-                                            <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
                                                 Edit
                                             </button>
-                                            <button onclick="openModal('confirm-notebook-deletion-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <button onclick="openModal('confirm-notebook-deletion-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
                                                 Delete
                                             </button>
                                         </div>
@@ -270,10 +270,10 @@
             </div>
 
             <!-- List View -->
-            <div id="list-view" style="{{ count($notebooks) ? 'display: none;' : '' }}" class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700">
-                <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+            <div id="list-view" style="{{ count($notebooks) ? 'display: none;' : '' }}" class="overflow-hidden rounded-xl bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg shadow-sm border border-gray-200/20 dark:border-gray-700/20">
+                <ul role="list" class="divide-y divide-gray-200/20 dark:divide-gray-700/20">
                     @foreach ($notebooks as $notebook)
-                    <li class="relative hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <li class="relative hover:bg-gray-50/30 dark:hover:bg-gray-700/50 transition-colors">
                         <div class="block px-6 py-4">
                             <div class="flex items-center justify-between">
                                 <a href="{{ route('notebooks.show', $notebook) }}" class="flex-1 min-w-0 group">
@@ -281,17 +281,17 @@
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $notebook->description ?? 'No description' }}</p>
                                 </a>
                                 <div class="ml-4 flex-shrink-0 relative">
-                                    <button id="menu-button-list-{{ $notebook->id }}" type="button" onclick="toggleMenu('list-{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <button id="menu-button-list-{{ $notebook->id }}" type="button" onclick="toggleMenu('list-{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                         </svg>
                                     </button>
-                                    <div id="menu-list-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10 border border-gray-200 dark:border-gray-700">
+                                    <div id="menu-list-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-10 border border-gray-200/20 dark:border-gray-700/20">
                                         <div class="py-1">
-                                            <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('list-{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('list-{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
                                                 Edit
                                             </button>
-                                            <button onclick="openModal('confirm-notebook-deletion-{{ $notebook->id }}'); toggleMenu('list-{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <button onclick="openModal('confirm-notebook-deletion-{{ $notebook->id }}'); toggleMenu('list-{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
                                                 Delete
                                             </button>
                                         </div>
@@ -345,11 +345,11 @@
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <button type="button" data-close-modal class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150">
+                    <button type="button" data-close-modal class="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-gray-800/40 backdrop-blur-lg border border-gray-200/20 dark:border-gray-500/20 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-white/30 dark:hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150">
                         {{ __('Cancel') }}
                     </button>
 
-                    <button type="submit" class="ml-3 inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                    <button type="submit" class="ml-3 inline-flex items-center px-4 py-2 bg-blue-600/90 backdrop-blur-sm border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                         {{ __('Create') }}
                     </button>
                 </div>
@@ -360,7 +360,7 @@
     <!-- Edit Notebook Modals -->
     @foreach ($notebooks as $notebook)
         <div id="edit-notebook-{{ $notebook->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
+            <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-xl max-w-md w-full">
                 <div class="p-6">
                     <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                         {{ __('Edit Notebook') }}
@@ -389,15 +389,15 @@
                             <button
                                 type="button"
                                 onclick="openModal('confirm-notebook-deletion-{{ $notebook->id }}'); closeModal('edit-notebook-{{ $notebook->id }}')"
-                                class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150"
+                                class="inline-flex items-center px-4 py-2 bg-red-600/90 backdrop-blur-sm border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150"
                             >{{ __('Delete') }}</button>
 
                             <div class="flex">
-                                <button type="button" data-close-modal class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150">
+                                <button type="button" data-close-modal class="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-gray-800/40 backdrop-blur-lg border border-gray-200/20 dark:border-gray-500/20 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-white/30 dark:hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150">
                                     {{ __('Cancel') }}
                                 </button>
 
-                                <button type="submit" class="ml-3 inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                                <button type="submit" class="ml-3 inline-flex items-center px-4 py-2 bg-blue-600/90 backdrop-blur-sm border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                                     {{ __('Save') }}
                                 </button>
                             </div>
@@ -409,7 +409,7 @@
 
         <!-- Delete Confirmation Modal -->
         <div id="confirm-notebook-deletion-{{ $notebook->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
+            <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-xl max-w-md w-full">
                 <form method="POST" action="{{ route('notebooks.destroy', $notebook) }}" class="p-6">
                     @csrf
                     @method('DELETE')
@@ -437,11 +437,11 @@
                     </div>
 
                     <div class="mt-6 flex justify-end">
-                        <button type="button" data-close-modal class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150">
+                        <button type="button" data-close-modal class="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-gray-800/40 backdrop-blur-lg border border-gray-200/20 dark:border-gray-500/20 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-white/30 dark:hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150">
                             {{ __('Cancel') }}
                         </button>
 
-                        <button type="submit" class="ml-3 inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                        <button type="submit" class="ml-3 inline-flex items-center px-4 py-2 bg-red-600/90 backdrop-blur-sm border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                             {{ __('Delete Notebook') }}
                         </button>
                     </div>

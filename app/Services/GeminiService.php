@@ -277,20 +277,24 @@ class GeminiService
     protected function buildPrompt(string $question, Collection $sources): string
     {
         $contextStr = $sources->map(function ($source) {
-            $content = $source['content'];
             $sourceName = $source['name'];
             
-            // For YouTube links, add a note that this is a video link
-            if ($source['type'] === 'youtube') {
-                return "Source '{$sourceName}' (YouTube Video): {$content}";
+            // For links that are YouTube videos
+            if ($source['type'] === 'link' && isset($source['video_id']) && !empty($source['extracted_content'])) {
+                $content = $source['extracted_content'];
+                
+                // Truncate long content for better prompt management
+                $maxLength = 8000; // Adjust based on model context window
+                if (strlen($content) > $maxLength) {
+                    $content = substr($content, 0, $maxLength) . "... [content truncated due to length]";
+                }
+                
+                return "Source '{$sourceName}' (YouTube Video Transcript):\n{$content}";
             }
             
-            // For website sources, format the content properly
-            if ($source['type'] === 'website') {
-                // If it's just a URL (not extracted yet), indicate that
-                if (filter_var($content, FILTER_VALIDATE_URL)) {
-                    return "Source '{$sourceName}' (Website URL): {$content}";
-                }
+            // For regular links (websites)
+            if ($source['type'] === 'link' && isset($source['extracted_content'])) {
+                $content = $source['extracted_content'];
                 
                 // Truncate long content for better prompt management
                 $maxLength = 8000; // Adjust based on model context window
@@ -303,15 +307,18 @@ class GeminiService
             
             // For text sources
             if ($source['type'] === 'text') {
+                $content = $source['content'];
                 return "Source '{$sourceName}' (Text):\n{$content}";
             }
             
             // For file sources
             if ($source['type'] === 'file') {
+                $content = $source['content'];
                 return "Source '{$sourceName}' (File):\n{$content}";
             }
             
-            // Default format
+            // Default format for any other type
+            $content = $source['content'] ?? '';
             return "Source '{$sourceName}' ({$source['type']}): {$content}";
         })->join("\n\n");
 
@@ -400,5 +407,79 @@ Based on all these sources, please answer the following question:
 When referencing information, specify which source you're drawing from by name. For YouTube sources, describe what you can see in the thumbnail and how it relates to the question.
 If the question cannot be answered using the provided sources, say so and provide a general response.
 EOT;
+    }
+
+    /**
+     * Prepare sources data for the AI.
+     *
+     * @param \Illuminate\Database\Eloquent\Collection $sources
+     * @return \Illuminate\Support\Collection
+     */
+    protected function prepareSourcesData($sources)
+    {
+        return $sources->filter(function ($source) {
+            return $source->is_active;
+        })->map(function ($source) {
+            if ($source->isText()) {
+                return [
+                    'type' => 'text',
+                    'name' => $source->name,
+                    'content' => $source->data,
+                ];
+            } elseif ($source->isWebsite()) {
+                $websiteContent = $source->getWebsiteContent();
+                return [
+                    'type' => 'link',
+                    'name' => $source->name,
+                    'content' => $websiteContent['url'] ?? '',
+                    'extracted_content' => $websiteContent['content'] ?? '',
+                ];
+            } elseif ($source->isYouTube()) {
+                $youtubeContent = $source->getYouTubeContent();
+                
+                // If there's an error or no transcript, return basic info
+                if (isset($youtubeContent['error']) || empty($youtubeContent['plain_text'])) {
+                    return [
+                        'type' => 'link',
+                        'name' => $source->name,
+                        'content' => $youtubeContent['url'] ?? '',
+                        'extracted_content' => 'No transcript available for this YouTube video.',
+                        'video_id' => $youtubeContent['video_id'] ?? null,
+                        'title' => $youtubeContent['title'] ?? null,
+                    ];
+                }
+                
+                // Format the transcript with video metadata for better context
+                $formattedContent = '';
+                
+                if (!empty($youtubeContent['title'])) {
+                    $formattedContent .= "Title: " . $youtubeContent['title'] . "\n\n";
+                }
+                
+                if (!empty($youtubeContent['author'])) {
+                    $formattedContent .= "Author: " . $youtubeContent['author'] . "\n\n";
+                }
+                
+                $formattedContent .= "Transcript:\n\n" . ($youtubeContent['plain_text'] ?? '');
+                
+                return [
+                    'type' => 'link',
+                    'name' => $source->name,
+                    'content' => $youtubeContent['url'] ?? '',
+                    'extracted_content' => $formattedContent,
+                    'video_id' => $youtubeContent['video_id'] ?? null,
+                    'title' => $youtubeContent['title'] ?? null,
+                ];
+            } elseif ($source->isFile()) {
+                // For now, we don't handle file content
+                return [
+                    'type' => 'file',
+                    'name' => $source->name,
+                    'content' => 'File content not available',
+                ];
+            }
+            
+            return null;
+        })->filter();
     }
 }

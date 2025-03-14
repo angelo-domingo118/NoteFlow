@@ -346,22 +346,104 @@
                     @endif
                 @endif
             @elseif($source->isYouTube())
+                @php
+                    $youtubeContent = $source->getYouTubeContent();
+                @endphp
                 <div class="mt-6">
                     <x-input-label for="youtube-url-{{ $source->id }}" :value="__('YouTube URL')" />
-                    <x-text-input id="youtube-url-{{ $source->id }}" type="text" class="mt-1 block w-full bg-gray-100 dark:bg-gray-800" value="{{ $source->data }}" readonly />
+                    <x-text-input id="youtube-url-{{ $source->id }}" type="text" class="mt-1 block w-full bg-gray-100 dark:bg-gray-800" value="{{ $youtubeContent['url'] ?? $source->data }}" readonly />
                 </div>
                 
-                <div class="mt-4">
-                    <div class="aspect-w-16 aspect-h-9">
-                        <iframe 
-                            src="https://www.youtube.com/embed/{{ preg_replace('/^.*(?:youtu.be\/|v\/|e\/|u\/\w+\/|embed\/|v=)([^#\&\?]*).*/', '$1', $source->data) }}" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen
-                            class="rounded-md"
-                        ></iframe>
+                @if($source->hasExtractionError())
+                    <div class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800 dark:text-red-200">{{ __('Extraction Failed') }}</h3>
+                                <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                                    <p>{{ $source->getExtractionError() }}</p>
+                                </div>
+                                <div class="mt-4">
+                                    <button type="submit" name="retry_extraction" value="1" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                        {{ __('Retry Extraction') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                @elseif(empty($youtubeContent['transcript']) && empty($youtubeContent['plain_text']) && !isset($youtubeContent['error']))
+                    <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">{{ __('Extraction in Progress') }}</h3>
+                                <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                                    <p>{{ __('The transcript is being extracted from the YouTube video. This may take a few moments.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="mt-4">
+                        <div class="aspect-w-16 aspect-h-9">
+                            <iframe 
+                                src="https://www.youtube.com/embed/{{ $youtubeContent['video_id'] ?? preg_replace('/^.*(?:youtu.be\/|v\/|e\/|u\/\w+\/|embed\/|v=)([^#\&\?]*).*/', '$1', $source->data) }}" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen
+                                class="rounded-md"
+                            ></iframe>
+                        </div>
+                    </div>
+                    
+                    @if(!empty($youtubeContent['title']) || !empty($youtubeContent['author']))
+                        <div class="mt-4">
+                            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Video Information') }}</h3>
+                            <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                @if(!empty($youtubeContent['title']))
+                                    <div class="mb-1">
+                                        <span class="font-medium">{{ __('Title') }}:</span> {{ $youtubeContent['title'] }}
+                                    </div>
+                                @endif
+                                @if(!empty($youtubeContent['author']))
+                                    <div class="mb-1">
+                                        <span class="font-medium">{{ __('Author') }}:</span> {{ $youtubeContent['author'] }}
+                                    </div>
+                                @endif
+                                @if(!empty($youtubeContent['language_used']))
+                                    <div class="mb-1">
+                                        <span class="font-medium">{{ __('Language') }}:</span> {{ strtoupper($youtubeContent['language_used']) }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                    
+                    @if(!empty($youtubeContent['plain_text']))
+                        <div class="mt-6">
+                            <x-input-label for="extracted-content-{{ $source->id }}" :value="__('Transcript')" />
+                            <textarea id="extracted-content-{{ $source->id }}" name="extracted_content" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 shadow-sm" rows="10">{{ $youtubeContent['plain_text'] }}</textarea>
+                            <x-input-error :messages="$errors->get('extracted_content')" class="mt-2" />
+                        </div>
+                    @endif
+                    
+                    @if(!empty($youtubeContent['transcript']))
+                        <div class="mt-4">
+                            <x-input-label for="transcript-{{ $source->id }}" :value="__('Transcript with Timestamps')" />
+                            <div id="transcript-{{ $source->id }}" class="mt-1 p-3 max-h-60 overflow-y-auto block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 font-mono text-sm">
+                                {!! nl2br(e($youtubeContent['transcript'])) !!}
+                            </div>
+                        </div>
+                    @endif
+                @endif
             @elseif($source->isFile())
                 <div class="mt-6">
                     <x-input-label for="file-path-{{ $source->id }}" :value="__('File')" />
@@ -428,24 +510,106 @@
 @foreach($sources as $source)
     @if($source->isYoutube())
         @php
-            $videoId = preg_match('/^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/', $source->data, $matches) ? $matches[1] : null;
+            $youtubeContent = $source->getYouTubeContent();
+            $videoId = $youtubeContent['video_id'] ?? null;
+            if (!$videoId) {
+                $videoId = preg_match('/^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/', $source->data, $matches) ? $matches[1] : null;
+            }
             if ($videoId) {
                 $embedUrl = "https://www.youtube.com/embed/{$videoId}";
             }
         @endphp
-        <x-modal name="view-youtube-{{ $source->id }}">
+        <x-modal name="view-youtube-{{ $source->id }}" max-width="4xl">
             <div class="p-6 space-y-4">
                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $source->name }}</h2>
                 
-                <div class="w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                    <iframe 
-                        class="w-full h-full" 
-                        src="{{ $embedUrl }}" 
-                        title="{{ $source->name }}" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen>
-                    </iframe>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                            <iframe 
+                                class="w-full h-full" 
+                                src="{{ $embedUrl }}" 
+                                title="{{ $source->name }}" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        
+                        @if(!empty($youtubeContent['title']) || !empty($youtubeContent['author']))
+                            <div class="mt-4">
+                                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Video Information') }}</h3>
+                                <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                    @if(!empty($youtubeContent['title']))
+                                        <div class="mb-1">
+                                            <span class="font-medium">{{ __('Title') }}:</span> {{ $youtubeContent['title'] }}
+                                        </div>
+                                    @endif
+                                    @if(!empty($youtubeContent['author']))
+                                        <div class="mb-1">
+                                            <span class="font-medium">{{ __('Author') }}:</span> {{ $youtubeContent['author'] }}
+                                        </div>
+                                    @endif
+                                    @if(!empty($youtubeContent['language_used']))
+                                        <div class="mb-1">
+                                            <span class="font-medium">{{ __('Language') }}:</span> {{ strtoupper($youtubeContent['language_used']) }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <div>
+                        @if($source->hasExtractionError())
+                            <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-md">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-red-800 dark:text-red-200">{{ __('Extraction Failed') }}</h3>
+                                        <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                                            <p>{{ $source->getExtractionError() }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif(empty($youtubeContent['transcript']) && empty($youtubeContent['plain_text']) && !isset($youtubeContent['error']))
+                            <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">{{ __('Extraction in Progress') }}</h3>
+                                        <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                                            <p>{{ __('The transcript is being extracted from the YouTube video. This may take a few moments.') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Transcript') }}</h3>
+                            <div class="mt-2 p-3 h-96 overflow-y-auto block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 text-sm">
+                                @if(!empty($youtubeContent['transcript']))
+                                    <div class="font-mono">
+                                        {!! nl2br(e($youtubeContent['transcript'])) !!}
+                                    </div>
+                                @elseif(!empty($youtubeContent['plain_text']))
+                                    <div>
+                                        {!! nl2br(e($youtubeContent['plain_text'])) !!}
+                                    </div>
+                                @else
+                                    <p class="text-gray-500 dark:text-gray-400">{{ __('No transcript available for this video.') }}</p>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
                 </div>
                 
                 <div class="mt-4 flex justify-end">

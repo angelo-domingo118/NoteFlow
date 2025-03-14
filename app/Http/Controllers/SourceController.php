@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use App\Jobs\ExtractWebPageContent;
+use App\Jobs\ExtractYouTubeTranscript;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -93,6 +94,11 @@ class SourceController extends BaseController
             if ($validated['type'] === 'website') {
                 ExtractWebPageContent::dispatch($source);
             }
+            
+            // If it's a YouTube video, dispatch the transcript extraction job
+            if ($validated['type'] === 'youtube') {
+                ExtractYouTubeTranscript::dispatch($source);
+            }
 
             if ($request->ajax()) {
                 return response()->json([
@@ -170,6 +176,20 @@ class SourceController extends BaseController
                 // If there's an error parsing the JSON, just update the name
             }
         }
+        
+        // Handle YouTube content update
+        if ($source->isYouTube() && isset($validated['extracted_content'])) {
+            try {
+                $youtubeData = json_decode($source->data, true);
+                if (is_array($youtubeData)) {
+                    $youtubeData['plain_text'] = $validated['extracted_content'];
+                    $youtubeData['updated_at'] = now()->toIso8601String();
+                    $data['data'] = json_encode($youtubeData);
+                }
+            } catch (\Exception $e) {
+                // If there's an error parsing the JSON, just update the name
+            }
+        }
 
         // Handle retry extraction
         if ($source->isWebsite() && $request->has('retry_extraction')) {
@@ -193,6 +213,33 @@ class SourceController extends BaseController
                 
                 // Dispatch the extraction job
                 ExtractWebPageContent::dispatch($source);
+                
+                return back()->with('status', 'extraction-retried');
+            }
+        }
+        
+        // Handle retry YouTube transcript extraction
+        if ($source->isYouTube() && $request->has('retry_extraction')) {
+            // Reset the data to just the URL
+            if (is_string($source->data) && filter_var($source->data, FILTER_VALIDATE_URL)) {
+                // It's just a URL string
+                $url = $source->data;
+            } else {
+                // Try to extract URL from JSON
+                try {
+                    $youtubeData = json_decode($source->data, true);
+                    $url = $youtubeData['url'] ?? null;
+                } catch (\Exception $e) {
+                    $url = null;
+                }
+            }
+
+            if ($url) {
+                $data['data'] = $url;
+                $source->update($data);
+                
+                // Dispatch the extraction job
+                ExtractYouTubeTranscript::dispatch($source);
                 
                 return back()->with('status', 'extraction-retried');
             }

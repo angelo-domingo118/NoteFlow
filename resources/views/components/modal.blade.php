@@ -7,7 +7,12 @@ $maxWidth = [
     'lg' => 'sm:max-w-lg',
     'xl' => 'sm:max-w-xl',
     '2xl' => 'sm:max-w-2xl',
-][$maxWidth];
+    '3xl' => 'sm:max-w-3xl',
+    '4xl' => 'sm:max-w-4xl',
+    '5xl' => 'sm:max-w-5xl',
+    '6xl' => 'sm:max-w-6xl',
+    '7xl' => 'sm:max-w-7xl',
+][$maxWidth] ?? 'sm:max-w-2xl';
 @endphp
 
 <div
@@ -60,7 +65,7 @@ $maxWidth = [
             x-transition:leave="ease-in duration-200"
             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            class="inline-block w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left align-middle shadow-xl transition-all sm:my-8 {{ $maxWidth }}"
+            class="inline-block w-full max-w-md transform overflow-hidden rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 text-left align-middle shadow-xl transition-all sm:my-8 {{ $maxWidth }}"
         >
             {{ $slot }}
         </div>

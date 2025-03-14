@@ -36,7 +36,7 @@ switch ($width) {
             class="absolute z-50 mt-2 {{ $width }} rounded-lg shadow-lg {{ $alignmentClasses }}"
             style="display: none;"
             @click="open = false">
-        <div class="rounded-lg bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 shadow-xl">
+        <div class="rounded-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 shadow-xl">
             {{ $content }}
         </div>
     </div>
