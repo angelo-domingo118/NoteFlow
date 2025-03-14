@@ -31,3 +31,49 @@
 .dark .scrollbar-minimal {
     scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
 }
+
+/* AI Thinking Animation */
+.ai-thinking-animation {
+    display: flex;
+    align-items: flex-end;
+    height: 30px;
+    width: 50px;
+    position: relative;
+}
+
+.ai-thinking-bubble {
+    background-color: #3b82f6; /* Blue-500 */
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    margin: 0 3px;
+    transform-origin: bottom;
+    animation: ai-thinking 1.5s infinite ease-in-out;
+}
+
+.dark .ai-thinking-bubble {
+    background-color: #60a5fa; /* Blue-400 */
+}
+
+.ai-thinking-bubble:nth-child(1) {
+    animation-delay: -0.3s;
+}
+
+.ai-thinking-bubble:nth-child(2) {
+    animation-delay: -0.15s;
+}
+
+.ai-thinking-bubble:nth-child(3) {
+    animation-delay: 0s;
+}
+
+@keyframes ai-thinking {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-10px) scale(1.1);
+        opacity: 1;
+    }
+}

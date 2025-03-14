@@ -8,10 +8,19 @@ use App\Models\Source;
 use App\Models\Notebook;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use App\Jobs\ExtractWebPageContent;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Http\JsonResponse;
 
-class SourceController extends ApiController
+class SourceController extends BaseController
 {
+    use AuthorizesRequests, ValidatesRequests;
+
     /**
      * Create a new controller instance.
      */
@@ -23,19 +32,95 @@ class SourceController extends ApiController
     /**
      * Store a newly created source in storage.
      */
-    public function store(Request $request, Notebook $notebook): RedirectResponse
+    public function store(Request $request, Notebook $notebook): RedirectResponse|JsonResponse
     {
         $this->authorize('update', $notebook);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string', 'in:text,file,link'],
-            'data' => ['required', 'string'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'type' => ['required', 'string', 'in:text,file,website,youtube'],
+                'content' => ['required_if:type,text', 'nullable', 'string'],
+                'url' => [
+                    'required_if:type,website,youtube', 
+                    'nullable', 
+                    'url',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->input('type') === 'youtube') {
+                            if (!preg_match('/^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/', $value)) {
+                                $fail('The YouTube URL format is invalid.');
+                            }
+                        }
+                    },
+                ],
+                'file' => ['required_if:type,file', 'nullable', 'file', 'mimes:pdf,txt,md', 'max:10240'], // 10MB max
+            ]);
 
-        $notebook->sources()->create($validated + ['is_active' => true]);
+            // Create source with basic info
+            $source = new Source([
+                'name' => $validated['name'],
+                'type' => $validated['type'],
+                'is_active' => true,
+            ]);
 
-        return back()->with('status', 'source-created');
+            // Handle different source types
+            switch ($validated['type']) {
+                case 'text':
+                    $source->data = $validated['content'];
+                    break;
+
+                case 'file':
+                    if ($request->hasFile('file')) {
+                        $file = $request->file('file');
+                        $fileName = Str::random(40) . '.' . $file->getClientOriginalExtension();
+                        $path = $file->storeAs('sources', $fileName, 'public');
+                        
+                        $source->data = '';  // Will be updated after text extraction
+                        $source->file_path = $path;
+                        $source->file_type = $file->getMimeType();
+                    }
+                    break;
+
+                case 'website':
+                case 'youtube':
+                    $source->data = $validated['url'];
+                    break;
+            }
+
+            $notebook->sources()->save($source);
+
+            // If it's a website, dispatch the content extraction job
+            if ($validated['type'] === 'website') {
+                ExtractWebPageContent::dispatch($source);
+            }
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Source added successfully',
+                    'source' => $source
+                ]);
+            }
+
+            return back()->with('status', 'source-created');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -59,9 +144,61 @@ class SourceController extends ApiController
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'content' => ['nullable', 'string'],
+            'extracted_content' => ['nullable', 'string'],
         ]);
 
-        $source->update($validated);
+        $data = [
+            'name' => $validated['name'],
+        ];
+
+        // Handle text content update
+        if ($source->isText() && isset($validated['content'])) {
+            $data['data'] = $validated['content'];
+        }
+
+        // Handle website content update
+        if ($source->isWebsite() && isset($validated['extracted_content'])) {
+            try {
+                $websiteData = json_decode($source->data, true);
+                if (is_array($websiteData)) {
+                    $websiteData['content'] = $validated['extracted_content'];
+                    $websiteData['updated_at'] = now()->toIso8601String();
+                    $data['data'] = json_encode($websiteData);
+                }
+            } catch (\Exception $e) {
+                // If there's an error parsing the JSON, just update the name
+            }
+        }
+
+        // Handle retry extraction
+        if ($source->isWebsite() && $request->has('retry_extraction')) {
+            // Reset the data to just the URL
+            if (is_string($source->data) && filter_var($source->data, FILTER_VALIDATE_URL)) {
+                // It's just a URL string
+                $url = $source->data;
+            } else {
+                // Try to extract URL from JSON
+                try {
+                    $websiteData = json_decode($source->data, true);
+                    $url = $websiteData['url'] ?? null;
+                } catch (\Exception $e) {
+                    $url = null;
+                }
+            }
+
+            if ($url) {
+                $data['data'] = $url;
+                $source->update($data);
+                
+                // Dispatch the extraction job
+                ExtractWebPageContent::dispatch($source);
+                
+                return back()->with('status', 'extraction-retried');
+            }
+        }
+
+        $source->update($data);
 
         return back()->with('status', 'source-updated');
     }
@@ -73,8 +210,46 @@ class SourceController extends ApiController
     {
         $this->authorize('update', $source->notebook);
 
+        // Delete associated file if it exists
+        if ($source->file_path) {
+            Storage::disk('public')->delete($source->file_path);
+        }
+
         $source->delete();
 
         return back()->with('status', 'source-deleted');
+    }
+
+    /**
+     * Delete multiple sources at once.
+     */
+    public function batchDelete(Request $request, Notebook $notebook): JsonResponse
+    {
+        $this->authorize('update', $notebook);
+
+        $validated = $request->validate([
+            'sources' => ['required', 'array'],
+            'sources.*' => ['required', 'integer', 'exists:sources,id'],
+        ]);
+
+        try {
+            $sources = Source::whereIn('id', $validated['sources'])
+                ->where('notebook_id', $notebook->id)
+                ->get();
+
+            foreach ($sources as $source) {
+                $source->delete();
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => count($sources) . ' sources deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

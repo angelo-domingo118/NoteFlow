@@ -28,12 +28,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/notes/{note}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
     Route::post('/notes/{note}/convert', [NoteController::class, 'convertToSource'])->name('notes.convert');
+    Route::post('/notebooks/{notebook}/notes/batch-delete', [NoteController::class, 'batchDelete'])->name('notes.batch-delete');
+    Route::post('/notebooks/{notebook}/notes/batch-convert', [NoteController::class, 'batchConvert'])->name('notes.batch-convert');
 
     // Source routes
     Route::post('/notebooks/{notebook}/sources', [SourceController::class, 'store'])->name('sources.store');
     Route::patch('/sources/{source}', [SourceController::class, 'update'])->name('sources.update');
     Route::delete('/sources/{source}', [SourceController::class, 'destroy'])->name('sources.destroy');
     Route::post('/sources/{source}/toggle', [SourceController::class, 'toggle'])->name('sources.toggle');
+    Route::post('/notebooks/{notebook}/sources/batch-delete', [SourceController::class, 'batchDelete'])->name('sources.batch-delete');
 
     // Chat routes
     Route::post('/notebooks/{notebook}/chat', [ChatController::class, 'generate'])->name('chat.generate');

@@ -141,6 +141,27 @@ export function initChat(notebookId) {
         const iconClass = type === 'user' ? 'text-blue-600' : type === 'assistant' ? 'text-green-600' : 'text-red-600';
         const messageClass = type === 'error' ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100';
 
+        // Create action buttons for AI responses
+        let actionButtons = '';
+        if (type === 'assistant') {
+            actionButtons = `
+                <div class="flex space-x-2 my-1">
+                    <button type="button" class="copy-response-btn inline-flex items-center px-2 py-1 text-xs font-medium rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Copy
+                    </button>
+                    <button type="button" class="save-to-notes-btn inline-flex items-center px-2 py-1 text-xs font-medium rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Save to Notes
+                    </button>
+                </div>
+            `;
+        }
+
         messageElement.innerHTML = `
             <div class="flex-shrink-0">
                 <svg class="h-6 w-6 ${iconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,12 +171,78 @@ export function initChat(notebookId) {
             <div class="flex-1 space-y-1">
                 <p class="text-sm font-medium ${messageClass}">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
                 <p class="text-sm ${messageClass} whitespace-pre-wrap">${content}</p>
+                ${actionButtons}
                 <p class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</p>
             </div>
         `;
 
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Add event listeners for the buttons if this is an AI response
+        if (type === 'assistant') {
+            const copyBtn = messageElement.querySelector('.copy-response-btn');
+            const saveBtn = messageElement.querySelector('.save-to-notes-btn');
+            
+            // Copy to clipboard functionality
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(content)
+                    .then(() => {
+                        // Show a temporary success message
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = `
+                            <svg class="h-3 w-3 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Copied!
+                        `;
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+            });
+            
+            // Save to notes functionality
+            saveBtn.addEventListener('click', () => {
+                // Store the content in a global variable so it can be accessed after modal opens
+                window.aiResponseContent = content;
+                
+                // Populate the title input
+                const titleInput = document.getElementById('title-new');
+                if (titleInput) {
+                    titleInput.value = `AI Response - ${new Date().toLocaleString()}`;
+                }
+                
+                // Open the add note modal
+                window.dispatchEvent(new CustomEvent('open-modal', { detail: 'add-note' }));
+                
+                // Set up an event listener for the modal opening
+                const setContentInEditor = () => {
+                    const contentInput = document.getElementById('content-new');
+                    if (contentInput) {
+                        // Set the value in the textarea
+                        contentInput.value = window.aiResponseContent;
+                        
+                        // Wait a bit for TinyMCE to initialize
+                        setTimeout(() => {
+                            if (window.tinymce) {
+                                const editor = window.tinymce.get('content-new');
+                                if (editor) {
+                                    editor.setContent(window.aiResponseContent);
+                                }
+                            }
+                        }, 500);
+                    }
+                };
+                
+                // Call once and also set up a small delay as backup
+                setContentInEditor();
+                setTimeout(setContentInEditor, 600);
+            });
+        }
     }
 
     // Get SVG path for message icon
