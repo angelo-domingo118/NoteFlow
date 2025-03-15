@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\View;
 use App\Jobs\ExtractWebPageContent;
 use App\Jobs\ExtractYouTubeTranscript;
+use App\Jobs\ExtractPdfContent;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -54,7 +55,7 @@ class SourceController extends BaseController
                         }
                     },
                 ],
-                'file' => ['required_if:type,file', 'nullable', 'file', 'mimes:pdf,txt,md', 'max:10240'], // 10MB max
+                'file' => ['required_if:type,file', 'nullable', 'file', 'mimes:pdf', 'max:10240'], // 10MB max, only PDF for now
             ]);
 
             // Create source with basic info
@@ -62,12 +63,14 @@ class SourceController extends BaseController
                 'name' => $validated['name'],
                 'type' => $validated['type'],
                 'is_active' => true,
+                'has_extracted_text' => false,
             ]);
 
             // Handle different source types
             switch ($validated['type']) {
                 case 'text':
                     $source->data = $validated['content'];
+                    $source->has_extracted_text = true; // Text content is already available
                     break;
 
                 case 'file':
@@ -98,6 +101,11 @@ class SourceController extends BaseController
             // If it's a YouTube video, dispatch the transcript extraction job
             if ($validated['type'] === 'youtube') {
                 ExtractYouTubeTranscript::dispatch($source);
+            }
+            
+            // If it's a PDF file, dispatch the PDF content extraction job
+            if ($validated['type'] === 'file' && $source->file_type === 'application/pdf') {
+                ExtractPdfContent::dispatch($source);
             }
 
             if ($request->ajax()) {
@@ -190,6 +198,32 @@ class SourceController extends BaseController
                 // If there's an error parsing the JSON, just update the name
             }
         }
+        
+        // Handle PDF content update
+        if ($source->isFile() && $source->file_type === 'application/pdf' && isset($validated['extracted_content'])) {
+            try {
+                $pdfData = json_decode($source->data, true);
+                if (is_array($pdfData)) {
+                    $pdfData['content'] = $validated['extracted_content'];
+                    $pdfData['updated_at'] = now()->toIso8601String();
+                    $data['data'] = json_encode($pdfData);
+                } else {
+                    // If the data is not yet an array (e.g., empty string), create a new structure
+                    $data['data'] = json_encode([
+                        'content' => $validated['extracted_content'],
+                        'pages' => 1, // Assume at least one page
+                        'updated_at' => now()->toIso8601String()
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // If there's an error parsing the JSON, create a new structure
+                $data['data'] = json_encode([
+                    'content' => $validated['extracted_content'],
+                    'pages' => 1, // Assume at least one page
+                    'updated_at' => now()->toIso8601String()
+                ]);
+            }
+        }
 
         // Handle retry extraction
         if ($source->isWebsite() && $request->has('retry_extraction')) {
@@ -243,6 +277,19 @@ class SourceController extends BaseController
                 
                 return back()->with('status', 'extraction-retried');
             }
+        }
+        
+        // Handle retry PDF content extraction
+        if ($source->isFile() && $source->file_type === 'application/pdf' && $request->has('retry_extraction')) {
+            // Reset the data
+            $data['data'] = '';
+            $data['has_extracted_text'] = false;
+            $source->update($data);
+            
+            // Dispatch the extraction job
+            ExtractPdfContent::dispatch($source);
+            
+            return back()->with('status', 'extraction-retried');
         }
 
         $source->update($data);

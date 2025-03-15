@@ -231,16 +231,23 @@ class Source extends Model
      */
     public function hasExtractionError(): bool
     {
-        if (!$this->isWebsite() && !$this->isYouTube()) {
-            return false;
+        // For website and YouTube sources
+        if ($this->isWebsite() || $this->isYouTube()) {
+            try {
+                $data = json_decode($this->data, true);
+                return isset($data['error']);
+            } catch (\Exception $e) {
+                return false;
+            }
         }
-
-        try {
-            $data = json_decode($this->data, true);
-            return isset($data['error']);
-        } catch (\Exception $e) {
-            return false;
+        
+        // For PDF files
+        if ($this->isFile() && $this->file_type === 'application/pdf') {
+            $pdfContent = $this->getPdfContent();
+            return isset($pdfContent['error']) && !empty($pdfContent['error']);
         }
+        
+        return false;
     }
 
     /**
@@ -250,15 +257,68 @@ class Source extends Model
      */
     public function getExtractionError(): ?string
     {
-        if (!$this->isWebsite() && !$this->isYouTube()) {
+        if (!$this->hasExtractionError()) {
+            return null;
+        }
+
+        // For website and YouTube sources
+        if ($this->isWebsite() || $this->isYouTube()) {
+            try {
+                $data = json_decode($this->data, true);
+                return $data['error'] ?? null;
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+        
+        // For PDF files
+        if ($this->isFile() && $this->file_type === 'application/pdf') {
+            $pdfContent = $this->getPdfContent();
+            return $pdfContent['error'] ?? null;
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get the PDF content data.
+     *
+     * @return array|null
+     */
+    public function getPdfContent(): ?array
+    {
+        if (!$this->isFile() || $this->file_type !== 'application/pdf') {
             return null;
         }
 
         try {
+            // If it's just an empty string (not processed yet)
+            if (empty($this->data)) {
+                return [
+                    'content' => null,
+                    'pages' => 0,
+                    'error' => null,
+                    'processing' => true,
+                ];
+            }
+
             $data = json_decode($this->data, true);
-            return $data['error'] ?? null;
+            
+            return [
+                'content' => $data['content'] ?? null,
+                'pages' => $data['pages'] ?? 0,
+                'ocr_result' => $data['ocr_result'] ?? null,
+                'extracted_at' => $data['extracted_at'] ?? null,
+                'error' => $data['error'] ?? null,
+                'processing' => false,
+            ];
         } catch (\Exception $e) {
-            return null;
+            return [
+                'content' => null,
+                'pages' => 0,
+                'error' => 'Failed to parse PDF data',
+                'processing' => false,
+            ];
         }
     }
 }

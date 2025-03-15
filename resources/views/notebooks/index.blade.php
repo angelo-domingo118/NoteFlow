@@ -86,6 +86,9 @@
             
             // Function to toggle notebook menu
             function toggleMenu(id) {
+                event.preventDefault();
+                event.stopPropagation();
+                
                 const menu = document.getElementById('menu-' + id);
                 menu.classList.toggle('hidden');
                 
@@ -226,32 +229,34 @@
                 @foreach ($notebooks as $notebook)
                 <div class="relative group">
                     <div class="block p-6 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 border border-gray-200/20 dark:border-gray-700/20">
-                        <a href="{{ route('notebooks.show', $notebook) }}" class="block">
-                            <div class="flex justify-between items-start">
-                                <div>
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <a href="{{ route('notebooks.show', $notebook) }}" class="block">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ $notebook->title }}</h3>
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                         {{ $notebook->description ?? 'No description' }}
                                     </p>
-                                </div>
-                                <div class="relative">
-                                    <button id="menu-button-{{ $notebook->id }}" type="button" onclick="toggleMenu('{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                                        </svg>
-                                    </button>
-                                    <div id="menu-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-10 border border-gray-200/20 dark:border-gray-700/20">
-                                        <div class="py-1">
-                                            <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
-                                                Edit
-                                            </button>
-                                            <button onclick="openModal('confirm-notebook-deletion-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
-                                                Delete
-                                            </button>
-                                        </div>
+                                </a>
+                            </div>
+                            <div class="relative ml-2">
+                                <button id="menu-button-{{ $notebook->id }}" type="button" onclick="event.stopPropagation(); toggleMenu('{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                    </svg>
+                                </button>
+                                <div id="menu-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-10 border border-gray-200/20 dark:border-gray-700/20">
+                                    <div class="py-1">
+                                        <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
+                                            Edit
+                                        </button>
+                                        <button onclick="openModal('confirm-notebook-deletion-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <a href="{{ route('notebooks.show', $notebook) }}" class="block">
                             <div class="mt-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
                                 <svg class="w-4 h-4 mr-1.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -281,7 +286,7 @@
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $notebook->description ?? 'No description' }}</p>
                                 </a>
                                 <div class="ml-4 flex-shrink-0 relative">
-                                    <button id="menu-button-list-{{ $notebook->id }}" type="button" onclick="toggleMenu('list-{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
+                                    <button id="menu-button-list-{{ $notebook->id }}" type="button" onclick="event.stopPropagation(); toggleMenu('list-{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                         </svg>
@@ -298,20 +303,22 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-4">
-                                <div class="flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    {{ $notebook->updated_at->diffForHumans() }}
+                            <a href="{{ route('notebooks.show', $notebook) }}" class="block">
+                                <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-4">
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {{ $notebook->updated_at->diffForHumans() }}
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">{{ $notebook->notes_count ?? 0 }}</span> <span class="ml-0.5">notes</span>
+                                    </div>
                                 </div>
-                                <div class="flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ $notebook->notes_count ?? 0 }}</span> <span class="ml-0.5">notes</span>
-                                </div>
-                            </div>
+                            </a>
                         </div>
                     </li>
                     @endforeach

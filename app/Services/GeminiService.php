@@ -249,10 +249,24 @@ class GeminiService
                         $content = $source->data; // Fallback to URL if content not extracted
                     }
                 } elseif ($source->isYouTube()) {
-                    $content = $source->data; // YouTube URL
+                    $youtubeContent = $source->getYouTubeContent();
+                    if (!empty($youtubeContent['plain_text'])) {
+                        $content = $youtubeContent['plain_text'];
+                    } else {
+                        $content = $source->data; // Fallback to YouTube URL if transcript not extracted
+                    }
                 } elseif ($source->isFile() && $source->file_path) {
+                    // For PDF files, get the extracted content
+                    if ($source->file_type === 'application/pdf') {
+                        $pdfContent = $source->getPdfContent();
+                        if (!empty($pdfContent['content'])) {
+                            $content = $pdfContent['content'];
+                        } else {
+                            $content = "PDF File: " . basename($source->file_path) . " (Content extraction in progress or failed)";
+                        }
+                    }
                     // For text files, try to get content
-                    if (in_array($source->file_type, ['text/plain', 'text/markdown'])) {
+                    elseif (in_array($source->file_type, ['text/plain', 'text/markdown'])) {
                         try {
                             $content = Storage::disk('public')->get($source->file_path);
                         } catch (\Exception $e) {
@@ -314,6 +328,17 @@ class GeminiService
             // For file sources
             if ($source['type'] === 'file') {
                 $content = $source['content'];
+                
+                // Check if it's a PDF file with extracted content
+                if (strpos($content, 'PDF File:') === false) {
+                    // This is actual extracted content, not just a filename
+                    $maxLength = 8000; // Adjust based on model context window
+                    if (strlen($content) > $maxLength) {
+                        $content = substr($content, 0, $maxLength) . "... [content truncated due to length]";
+                    }
+                    return "Source '{$sourceName}' (PDF File Content):\n{$content}";
+                }
+                
                 return "Source '{$sourceName}' (File):\n{$content}";
             }
             

@@ -63,7 +63,7 @@
 
 <!-- Add Source Modal -->
 <x-modal name="add-source" :show="false" focusable>
-    <form id="add-source-form" class="p-6">
+    <form id="add-source-form" method="POST" enctype="multipart/form-data" class="p-6">
         @csrf
         <div class="flex items-center justify-between">
             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
@@ -191,13 +191,14 @@
                         <div class="flex text-sm text-gray-600 dark:text-gray-400">
                             <label for="source_file" class="relative cursor-pointer rounded-md font-medium text-indigo-600 dark:text-indigo-500 hover:text-indigo-500 dark:hover:text-indigo-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
                                 <span>Upload a file</span>
-                                <input id="source_file" name="file" type="file" class="sr-only" accept=".pdf,.txt,.md">
+                                <input id="source_file" name="file" type="file" class="sr-only" accept=".pdf">
                             </label>
                             <p class="pl-1">or drag and drop</p>
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                            PDF, TXT, or MD up to 10MB
+                            PDF files only, up to 10MB
                         </p>
+                        <p id="selected-file-name" class="text-sm text-indigo-600 dark:text-indigo-500 mt-2 hidden"></p>
                     </div>
                 </div>
                 <x-input-error :messages="$errors->get('file')" class="mt-2" />
@@ -395,7 +396,7 @@
                     <div class="mt-4">
                         <div class="aspect-w-16 aspect-h-9">
                             <iframe 
-                                src="https://www.youtube.com/embed/{{ $youtubeContent['video_id'] ?? preg_replace('/^.*(?:youtu.be\/|v\/|e\/|u\/\w+\/|embed\/|v=)([^#\&\?]*).*/', '$1', $source->data) }}" 
+                                src="https://www.youtube.com/embed/{{ $youtubeContent['video_id'] ?? preg_replace('/^.*(?:youtu.be\/|v\/|vi\/|u\/\w+\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/', '$1', $source->data) }}" 
                                 frameborder="0" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen
@@ -457,7 +458,72 @@
                     </div>
                 </div>
                 
-                @if(Str::endsWith($source->file_path, ['.txt', '.md']))
+                @if($source->file_type === 'application/pdf')
+                    @php
+                        $pdfContent = $source->getPdfContent();
+                    @endphp
+                    
+                    @if(isset($pdfContent['error']))
+                        <div class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-red-800 dark:text-red-200">{{ __('Extraction Failed') }}</h3>
+                                    <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                                        <p>{{ $pdfContent['error'] }}</p>
+                                    </div>
+                                    <div class="mt-4">
+                                        <button type="submit" name="retry_extraction" value="1" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            {{ __('Retry Extraction') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($pdfContent['processing'] || empty($pdfContent['content']))
+                        <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">{{ __('Extraction in Progress') }}</h3>
+                                    <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                                        <p>{{ __('The content is being extracted from the PDF. This may take a few moments.') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="mt-6">
+                            <x-input-label for="extracted-content-{{ $source->id }}" :value="__('Extracted Content')" />
+                            <textarea id="extracted-content-{{ $source->id }}" name="extracted_content" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 shadow-sm" rows="10">{{ $pdfContent['content'] }}</textarea>
+                            <x-input-error :messages="$errors->get('extracted_content')" class="mt-2" />
+                        </div>
+                        
+                        @if(!empty($pdfContent['pages']))
+                            <div class="mt-4">
+                                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('PDF Information') }}</h3>
+                                <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                    <div class="mb-1">
+                                        <span class="font-medium">{{ __('Pages') }}:</span> {{ $pdfContent['pages'] }}
+                                    </div>
+                                    @if(!empty($pdfContent['extracted_at']))
+                                        <div class="mb-1">
+                                            <span class="font-medium">{{ __('Extracted At') }}:</span> {{ \Carbon\Carbon::parse($pdfContent['extracted_at'])->format('Y-m-d H:i:s') }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+                @elseif(Str::endsWith($source->file_path, ['.txt', '.md']))
                     <div class="mt-4">
                         <x-input-label for="file-content-{{ $source->id }}" :value="__('File Content')" />
                         <textarea id="file-content-{{ $source->id }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 shadow-sm" rows="10" readonly>{{ Storage::disk('public')->get($source->file_path) }}</textarea>
@@ -633,6 +699,11 @@
         const submitText = document.getElementById('submit-text');
         const loadingSpinner = document.getElementById('loading-spinner');
         const fileInput = document.getElementById('source_file');
+        const selectedFileName = document.getElementById('selected-file-name');
+        const notebookId = document.querySelector('[data-notebook-id]').dataset.notebookId;
+
+        // Set the form action dynamically
+        sourceForm.action = `/notebooks/${notebookId}/sources`;
 
         // Handle source type change
         sourceTypeInputs.forEach(input => {
@@ -661,6 +732,33 @@
                         break;
                 }
             });
+        });
+
+        // Show selected file name
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                selectedFileName.textContent = file.name;
+                selectedFileName.classList.remove('hidden');
+                
+                // Validate file type
+                const fileType = file.type;
+                if (fileType !== 'application/pdf') {
+                    alert('Only PDF files are allowed.');
+                    this.value = '';
+                    selectedFileName.classList.add('hidden');
+                }
+                
+                // Validate file size (10MB max)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    alert('File size exceeds 10MB limit.');
+                    this.value = '';
+                    selectedFileName.classList.add('hidden');
+                }
+            } else {
+                selectedFileName.classList.add('hidden');
+            }
         });
 
         // Handle file drag and drop
@@ -695,12 +793,54 @@
         function handleDrop(e) {
             const dt = e.dataTransfer;
             const files = dt.files;
-            fileInput.files = files;
+            
+            if (files && files.length > 0) {
+                const file = files[0];
+                
+                // Validate file type
+                const fileType = file.type;
+                if (fileType !== 'application/pdf') {
+                    alert('Only PDF files are allowed.');
+                    return;
+                }
+                
+                // Validate file size (10MB max)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    alert('File size exceeds 10MB limit.');
+                    return;
+                }
+                
+                fileInput.files = files;
+                selectedFileName.textContent = file.name;
+                selectedFileName.classList.remove('hidden');
+            }
         }
 
         // Handle form submission
         sourceForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Validate form based on selected type
+            const selectedType = document.querySelector('input[name="type"]:checked').value;
+            
+            if (selectedType === 'file' && (!fileInput.files || fileInput.files.length === 0)) {
+                alert('Please select a file to upload.');
+                return;
+            }
+            
+            if (selectedType === 'website' || selectedType === 'youtube') {
+                const urlInput = document.getElementById('source_url');
+                if (!urlInput.value.trim()) {
+                    alert('Please enter a valid URL.');
+                    return;
+                }
+                
+                if (selectedType === 'youtube' && !urlInput.value.match(/^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/)) {
+                    alert('Please enter a valid YouTube URL.');
+                    return;
+                }
+            }
             
             // Show loading state
             submitText.textContent = 'Adding Source...';
@@ -709,55 +849,8 @@
             // Disable the submit button
             this.querySelector('button[type="submit"]').disabled = true;
 
-            // Create FormData object
-            const formData = new FormData(this);
-            formData.append('notebook_id', document.querySelector('[data-notebook-id]').dataset.notebookId);
-
-            // Submit the form using fetch
-            fetch(`/notebooks/${formData.get('notebook_id')}/sources`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    // Close the modal
-                    window.dispatchEvent(new CustomEvent('close-modal', { detail: 'add-source' }));
-                    
-                    // Reload the page to show the new source
-                    window.location.reload();
-                } else {
-                    throw new Error(data.message || 'Failed to add source');
-                }
-            })
-            .catch(error => {
-                console.error('Error adding source:', error);
-                let errorMessage = 'Failed to add source';
-                
-                if (error.errors) {
-                    // Handle validation errors
-                    errorMessage = Object.values(error.errors).flat().join('\n');
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-                
-                alert(errorMessage);
-            })
-            .finally(() => {
-                // Reset the form state
-                submitText.textContent = 'Add Source';
-                loadingSpinner.classList.add('hidden');
-                this.querySelector('button[type="submit"]').disabled = false;
-            });
+            // Submit the form
+            this.submit();
         });
     });
 </script>
