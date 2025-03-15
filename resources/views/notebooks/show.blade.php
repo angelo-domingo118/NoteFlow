@@ -252,7 +252,7 @@
                             </button>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <span id="active-sources-indicator" class="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center cursor-help" title="Number of active sources that will be used for AI responses">
+                            <span id="active-sources-indicator" class="text-xs px-2 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 flex items-center cursor-help" title="Number of active sources that will be used for AI responses">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
@@ -282,15 +282,26 @@
                                 <div class="mt-6">
                                     <h4 class="text-sm font-medium mb-3">Try asking:</h4>
                                     <div id="suggestions" class="flex flex-col space-y-2 max-w-md mx-auto">
-                                        <button type="button" class="text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                            Summarize the key points from all sources
-                                        </button>
-                                        <button type="button" class="text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                            What are the main arguments presented?
-                                        </button>
-                                        <button type="button" class="text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                            Compare and contrast the different perspectives
-                                        </button>
+                                        <div id="loading-suggestions" class="hidden">
+                                            <div class="flex justify-center items-center space-x-2 py-4">
+                                                <div class="spinner-border animate-spin h-5 w-5 border-2 border-t-transparent border-blue-500 rounded-full"></div>
+                                                <span class="text-sm text-gray-500 dark:text-gray-400">Generating suggestions...</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="default-suggestions">
+                                            <button type="button" class="w-full text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                                Summarize the key points from all sources
+                                            </button>
+                                            <button type="button" class="w-full text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                                What are the main arguments presented?
+                                            </button>
+                                            <button type="button" class="w-full text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                                Compare and contrast the different perspectives
+                                            </button>
+                                        </div>
+                                        
+                                        <div id="ai-suggestions" class="hidden flex flex-col space-y-2 w-full"></div>
                                     </div>
                                 </div>
                             </div>
@@ -403,13 +414,6 @@
                                 </span>
                             </button>
 
-                            <div x-show="open" class="flex gap-2">
-                                @foreach(['study-guide' => 'Study Guide', 'briefing' => 'Briefing Doc', 'faq' => 'FAQ'] as $type => $label)
-                                    <button type="button" @click="createNoteFormat('{{ $type }}')" class="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
-                                        {{ __($label) }}
-                                    </button>
-                                @endforeach
-                            </div>
                         </div>
 
                         <div x-show="open" class="mt-4 flex items-center">
@@ -501,7 +505,7 @@
     <!-- Custom Confirmation Modal -->
     <div id="confirmation-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <div class="fixed inset-0 bg-gray-500/30 dark:bg-gray-800/30 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -536,6 +540,132 @@
         // All chat functionality is now handled by resources/js/chat.js
         // Additional UI functionality
         document.addEventListener('DOMContentLoaded', () => {
+            // Update source indicator based on count
+            function updateSourceIndicator() {
+                const countElement = document.getElementById('active-sources-count');
+                const indicator = document.getElementById('active-sources-indicator');
+                
+                if (countElement && indicator) {
+                    const count = parseInt(countElement.textContent || '0');
+                    
+                    if (count === 0) {
+                        // Use gray colors for zero sources
+                        indicator.classList.remove('bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-600', 'dark:text-blue-400');
+                        indicator.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
+                        
+                        // Show default suggestions when no sources are active
+                        document.getElementById('default-suggestions').classList.remove('hidden');
+                        document.getElementById('ai-suggestions').classList.add('hidden');
+                    } else {
+                        // Use blue colors for active sources
+                        indicator.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
+                        indicator.classList.add('bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-600', 'dark:text-blue-400');
+                        
+                        // Generate AI suggestions when sources are active
+                        generateAiSuggestions();
+                    }
+                }
+            }
+            
+            // Call initially and observe for changes
+            updateSourceIndicator();
+            
+            // Set up a mutation observer to detect changes in the source count
+            const countElement = document.getElementById('active-sources-count');
+            if (countElement) {
+                const observer = new MutationObserver(updateSourceIndicator);
+                observer.observe(countElement, { childList: true, characterData: true, subtree: true });
+            }
+            
+            // Function to generate AI suggestions based on active sources
+            function generateAiSuggestions() {
+                const activeSources = Array.from(document.querySelectorAll('input[name^="source-"]:checked')).map(
+                    checkbox => ({
+                        id: checkbox.id.replace('source-', ''),
+                        name: checkbox.nextElementSibling?.querySelector('label')?.textContent || 'Source'
+                    })
+                );
+                
+                if (activeSources.length === 0) return;
+                
+                // Show loading state
+                document.getElementById('default-suggestions').classList.add('hidden');
+                document.getElementById('loading-suggestions').classList.remove('hidden');
+                document.getElementById('ai-suggestions').classList.add('hidden');
+                
+                const notebookId = document.querySelector('[data-notebook-id]').dataset.notebookId;
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                
+                // Call the API to generate suggestions
+                fetch(`/api/notebooks/${notebookId}/generate-suggestions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sources: activeSources.map(s => s.id),
+                        model: 'gemini-2.0-flash-lite'
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to generate suggestions');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loading state
+                    document.getElementById('loading-suggestions').classList.add('hidden');
+                    
+                    if (data.suggestions && data.suggestions.length > 0) {
+                        // Display AI-generated suggestions
+                        const aiSuggestionsContainer = document.getElementById('ai-suggestions');
+                        aiSuggestionsContainer.innerHTML = '';
+                        
+                        data.suggestions.forEach(suggestion => {
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.className = 'w-full text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors';
+                            button.textContent = suggestion;
+                            button.addEventListener('click', () => {
+                                // Fill the chat input with this suggestion
+                                const questionInput = document.getElementById('question');
+                                if (questionInput) {
+                                    questionInput.value = suggestion;
+                                    questionInput.focus();
+                                }
+                            });
+                            
+                            aiSuggestionsContainer.appendChild(button);
+                        });
+                        
+                        aiSuggestionsContainer.classList.remove('hidden');
+                    } else {
+                        // Show default suggestions if no AI suggestions were generated
+                        document.getElementById('default-suggestions').classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error generating suggestions:', error);
+                    // Show default suggestions on error
+                    document.getElementById('loading-suggestions').classList.add('hidden');
+                    document.getElementById('default-suggestions').classList.remove('hidden');
+                });
+            }
+            
+            // Add click handlers for default suggestions
+            document.querySelectorAll('#default-suggestions button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const questionInput = document.getElementById('question');
+                    if (questionInput) {
+                        questionInput.value = button.textContent.trim();
+                        questionInput.focus();
+                    }
+                });
+            });
+            
             // Layout adjustment function
             function adjustLayout() {
                 const navHeight = document.querySelector('nav')?.offsetHeight || 0;

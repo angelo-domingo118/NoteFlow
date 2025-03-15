@@ -42,7 +42,7 @@ class NotebookController extends ApiController
                 break;
         }
         
-        $notebooks = $query->withCount('notes')->get();
+        $notebooks = $query->withCount(['notes', 'sources'])->get();
 
         return view('notebooks.index', compact('notebooks'));
     }

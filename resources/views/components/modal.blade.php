@@ -39,7 +39,7 @@ $maxWidth = [
     x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
     x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
     x-show="show"
-    class="fixed inset-0 z-50 overflow-y-auto"
+    class="fixed inset-0 z-50 overflow-y-auto modal-container"
     style="display: none;"
 >
     <div class="min-h-screen px-4 text-center">
@@ -51,7 +51,7 @@ $maxWidth = [
             x-transition:leave="ease-in duration-200"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm"
+            class="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm modal-backdrop"
         ></div>
 
         <!-- This element is to trick the browser into centering the modal contents. -->
@@ -65,7 +65,7 @@ $maxWidth = [
             x-transition:leave="ease-in duration-200"
             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            class="inline-block w-full max-w-md transform overflow-hidden rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 text-left align-middle shadow-xl transition-all sm:my-8 {{ $maxWidth }}"
+            class="inline-block w-full max-w-md transform overflow-hidden rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 text-left align-middle shadow-xl transition-all sm:my-8 {{ $maxWidth }} modal-content"
         >
             {{ $slot }}
         </div>

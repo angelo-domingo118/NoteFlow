@@ -281,3 +281,41 @@ textarea.auto-grow {
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* TinyMCE Fullscreen Mode in Modal */
+body.tox-fullscreen-modal-active {
+    overflow: hidden;
+}
+
+.tox-fullscreen {
+    z-index: 10000 !important;
+}
+
+.tox-fullscreen .tox-edit-area__iframe {
+    background-color: white !important;
+    flex: 1 !important;
+    min-height: 300px !important;
+}
+
+.dark .tox-fullscreen .tox-edit-area__iframe {
+    background-color: #1f2937 !important;
+}
+
+.tox-fullscreen .tox-editor-container {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+.tox-fullscreen .tox-edit-area {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.tox-fullscreen .tox-statusbar {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    z-index: 1;
+}

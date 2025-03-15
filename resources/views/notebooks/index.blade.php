@@ -90,6 +90,8 @@
                 event.stopPropagation();
                 
                 const menu = document.getElementById('menu-' + id);
+                
+                // Toggle visibility
                 menu.classList.toggle('hidden');
                 
                 // Close other open menus
@@ -185,7 +187,7 @@
                         </svg>
                         <span id="current-sort">{{ request('sort') === 'alpha' ? 'Alphabetical' : (request('sort') === 'modified' ? 'Last Modified' : 'Most Recent') }}</span>
                     </button>
-                    <div id="sort-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 z-10">
+                    <div id="sort-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 z-50">
                         <div class="py-1">
                             <button data-sort="recent" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">Most Recent</button>
                             <button data-sort="alpha" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">Alphabetical</button>
@@ -225,10 +227,10 @@
             </div>
 
             <!-- Grid View -->
-            <div id="grid-view" style="{{ count($notebooks) ? '' : 'display: none;' }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="grid-view" style="{{ count($notebooks) ? '' : 'display: none;' }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-visible">
                 @foreach ($notebooks as $notebook)
                 <div class="relative group">
-                    <div class="block p-6 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 border border-gray-200/20 dark:border-gray-700/20">
+                    <div class="block p-6 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 border border-gray-200/20 dark:border-gray-700/20 relative">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <a href="{{ route('notebooks.show', $notebook) }}" class="block">
@@ -238,13 +240,13 @@
                                     </p>
                                 </a>
                             </div>
-                            <div class="relative ml-2">
+                            <div class="relative ml-2 z-40 isolation-auto">
                                 <button id="menu-button-{{ $notebook->id }}" type="button" onclick="event.stopPropagation(); toggleMenu('{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                     </svg>
                                 </button>
-                                <div id="menu-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-10 border border-gray-200/20 dark:border-gray-700/20">
+                                <div id="menu-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-50 border border-gray-200/20 dark:border-gray-700/20">
                                     <div class="py-1">
                                         <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
                                             Edit
@@ -267,6 +269,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 <span class="font-medium text-gray-700 dark:text-gray-300">{{ $notebook->notes_count ?? 0 }}</span> <span class="ml-0.5">notes</span>
+                                <span class="mx-2 text-gray-300 dark:text-gray-600">•</span>
+                                <svg class="w-4 h-4 mr-1.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">{{ $notebook->sources_count ?? 0 }}</span> <span class="ml-0.5">sources</span>
                             </div>
                         </a>
                     </div>
@@ -275,7 +282,7 @@
             </div>
 
             <!-- List View -->
-            <div id="list-view" style="{{ count($notebooks) ? 'display: none;' : '' }}" class="overflow-hidden rounded-xl bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg shadow-sm border border-gray-200/20 dark:border-gray-700/20">
+            <div id="list-view" style="{{ count($notebooks) ? 'display: none;' : '' }}" class="rounded-xl bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg shadow-sm border border-gray-200/20 dark:border-gray-700/20 overflow-visible">
                 <ul role="list" class="divide-y divide-gray-200/20 dark:divide-gray-700/20">
                     @foreach ($notebooks as $notebook)
                     <li class="relative hover:bg-gray-50/30 dark:hover:bg-gray-700/50 transition-colors">
@@ -285,13 +292,13 @@
                                     <h3 class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">{{ $notebook->title }}</h3>
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $notebook->description ?? 'No description' }}</p>
                                 </a>
-                                <div class="ml-4 flex-shrink-0 relative">
+                                <div class="ml-4 flex-shrink-0 relative z-40 isolation-auto">
                                     <button id="menu-button-list-{{ $notebook->id }}" type="button" onclick="event.stopPropagation(); toggleMenu('list-{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                         </svg>
                                     </button>
-                                    <div id="menu-list-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-10 border border-gray-200/20 dark:border-gray-700/20">
+                                    <div id="menu-list-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-50 border border-gray-200/20 dark:border-gray-700/20">
                                         <div class="py-1">
                                             <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('list-{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
                                                 Edit
@@ -316,6 +323,12 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
                                         <span class="font-medium text-gray-700 dark:text-gray-300">{{ $notebook->notes_count ?? 0 }}</span> <span class="ml-0.5">notes</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                        </svg>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">{{ $notebook->sources_count ?? 0 }}</span> <span class="ml-0.5">sources</span>
                                     </div>
                                 </div>
                             </a>
