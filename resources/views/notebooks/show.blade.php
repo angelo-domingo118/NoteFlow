@@ -17,6 +17,31 @@
             width: 100%;
             display: flex;
         }
+        
+        /* Toggle switch styles */
+        #thinking-mode:checked ~ .dot {
+            transform: translateX(100%);
+            background-color: #ffffff;
+        }
+        
+        #thinking-mode:checked ~ .block {
+            background-color: #3b82f6;
+        }
+        
+        .dot {
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+        }
+        
+        /* Thinking mode animation */
+        @keyframes thinking {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+        
+        #thinking-mode:checked ~ .dot {
+            animation: thinking 1.5s infinite;
+        }
     </style>
     
     <div class="notebook-page">
@@ -332,9 +357,33 @@
                         </button>
                     </div>
 
-                    <div class="p-3 border-t dark:border-gray-700">
-                        <!-- Source reference indicator -->
-                        <div id="source-reference" class="mb-2 hidden">
+                    <div class="mt-auto border-t dark:border-gray-700">
+                        <!-- Thinking mode toggle -->
+                        <div class="px-3 pt-3 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <label for="thinking-mode" class="flex items-center cursor-pointer">
+                                    <div class="relative">
+                                        <input type="checkbox" id="thinking-mode" class="sr-only" onchange="toggleThinkingMode(this.checked)">
+                                        <div class="block bg-gray-200 dark:bg-gray-700 w-10 h-6 rounded-full"></div>
+                                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+                                    </div>
+                                    <div class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                                        Thinking Mode
+                                        <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            Experimental
+                                        </span>
+                                        <span class="ml-1 cursor-help group relative">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                                Thinking Mode uses an experimental AI model that shows its reasoning process. This helps you understand how the AI arrives at its answers by revealing its step-by-step thinking.
+                                            </div>
+                                        </span>
+                                    </div>
+                                </label>
+                            </div>
+                            <!-- Source reference indicator - moved to right side -->
                             <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -343,30 +392,42 @@
                             </div>
                         </div>
                         
-                        <form id="chat-form" autocomplete="off" class="bg-gray-50/60 dark:bg-gray-700/20 rounded-lg border border-gray-200/50 dark:border-gray-600/20 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
+                        <form id="chat-form" autocomplete="off" class="bg-gray-800 dark:bg-gray-900 rounded-lg shadow-sm border border-gray-700 dark:border-gray-800 hover:border-blue-700 dark:hover:border-blue-800 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all m-3 mb-0">
                             @csrf
                             <div class="relative">
+                                <div class="absolute left-3 top-3 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
                                 <label for="question" class="sr-only">{{ __('Your question') }}</label>
                                 <textarea 
                                     id="question"
                                     name="question"
                                     rows="1"
-                                    class="block w-full rounded-lg bg-transparent border-0 dark:text-gray-300 shadow-none focus:ring-0 sm:text-sm resize-none scrollbar-minimal pr-12 py-3 px-4 auto-grow"
+                                    class="block w-full rounded-lg bg-transparent border-0 text-white shadow-none focus:ring-0 text-sm resize-none scrollbar-minimal pl-10 pr-10 py-3"
                                     placeholder="{{ __('Ask a question about your sources...') }}"
+                                    style="min-height: 46px; height: 46px; overflow-y: hidden;"
                                 ></textarea>
-                                <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
-                                    <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                        <span class="loading-hide">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                                            </svg>
-                                        </span>
-                                        <svg class="loading-show hidden animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                    </button>
+                            </div>
+                            <div class="px-3 py-2 border-t border-gray-700 dark:border-gray-800 flex justify-between items-center text-xs text-gray-400">
+                                <div class="flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Press Enter to send, Shift+Enter for new line</span>
                                 </div>
+                                <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+                                    <span class="loading-hide">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7 7 7-7" transform="rotate(-90 12 12)" />
+                                        </svg>
+                                    </span>
+                                    <svg class="loading-show hidden animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -540,6 +601,28 @@
         // All chat functionality is now handled by resources/js/chat.js
         // Additional UI functionality
         document.addEventListener('DOMContentLoaded', () => {
+            // Auto-resize textarea based on content
+            const questionInput = document.getElementById('question');
+            if (questionInput) {
+                questionInput.addEventListener('input', function() {
+                    // Reset height to auto to get the correct scrollHeight
+                    this.style.height = 'auto';
+                    // Set the height to match content (with a minimum height)
+                    this.style.height = Math.max(46, this.scrollHeight) + 'px';
+                });
+                
+                // Handle Enter key for submission and Shift+Enter for new line
+                questionInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        const form = this.closest('form');
+                        if (form && this.value.trim()) {
+                            form.dispatchEvent(new Event('submit', { cancelable: true }));
+                        }
+                    }
+                });
+            }
+            
             // Update source indicator based on count
             function updateSourceIndicator() {
                 const countElement = document.getElementById('active-sources-count');
@@ -1077,6 +1160,54 @@
                     }
                 );
             };
+
+            // Thinking mode toggle functionality
+            window.toggleThinkingMode = function(isEnabled) {
+                // Store the preference in localStorage
+                localStorage.setItem('thinking_mode_enabled', isEnabled ? 'true' : 'false');
+                
+                // Update the UI to reflect the current mode
+                const toggle = document.getElementById('thinking-mode');
+                if (toggle) {
+                    toggle.checked = isEnabled;
+                    
+                    // The CSS will handle the animation and styling
+                    // No need to manually update styles here
+                }
+                
+                console.log('Thinking mode ' + (isEnabled ? 'enabled' : 'disabled'));
+            };
+            
+            // Initialize thinking mode from localStorage
+            const thinkingModeEnabled = localStorage.getItem('thinking_mode_enabled') === 'true';
+            const thinkingModeToggle = document.getElementById('thinking-mode');
+            if (thinkingModeToggle) {
+                thinkingModeToggle.checked = thinkingModeEnabled;
+                toggleThinkingMode(thinkingModeEnabled);
+            }
+            
+            // Character count for chat input
+            const questionInput = document.getElementById('question');
+            const characterCount = document.getElementById('character-count');
+            
+            if (questionInput && characterCount) {
+                questionInput.addEventListener('input', function() {
+                    const count = this.value.length;
+                    characterCount.textContent = count;
+                    
+                    // Optional: Add color indication for character limits
+                    if (count > 2000) {
+                        characterCount.classList.add('text-red-500');
+                        characterCount.classList.remove('text-gray-400', 'text-yellow-500');
+                    } else if (count > 1500) {
+                        characterCount.classList.add('text-yellow-500');
+                        characterCount.classList.remove('text-gray-400', 'text-red-500');
+                    } else {
+                        characterCount.classList.add('text-gray-400');
+                        characterCount.classList.remove('text-yellow-500', 'text-red-500');
+                    }
+                });
+            }
         });
     </script>
     @endpush

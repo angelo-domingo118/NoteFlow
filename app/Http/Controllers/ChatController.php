@@ -28,12 +28,14 @@ class ChatController extends ApiController
 
         $validated = $request->validate([
             'question' => ['required', 'string'],
+            'thinking_mode' => ['sometimes', 'boolean'],
         ]);
 
         try {
             $response = $this->gemini->generateResponse(
                 $validated['question'],
-                $notebook
+                $notebook,
+                $validated['thinking_mode'] ?? false
             );
 
             return response()->json([

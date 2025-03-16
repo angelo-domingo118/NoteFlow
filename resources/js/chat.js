@@ -18,18 +18,9 @@ export function initChat(notebookId) {
     // Update active sources count
     updateActiveSourcesCount();
     
-    // Auto-resize textarea
+    // Character count functionality only
     questionInput.addEventListener('input', function() {
-        this.style.height = 'auto';
-        const newHeight = Math.min(this.scrollHeight, 120); // Max height of 120px
-        this.style.height = newHeight + 'px';
-        
-        // Show source reference when user starts typing
-        if (this.value.trim().length > 0) {
-            sourceReferenceIndicator.classList.remove('hidden');
-        } else {
-            sourceReferenceIndicator.classList.add('hidden');
-        }
+        // Character count functionality can be added here if needed
     });
     
     // Handle textarea Enter key
@@ -73,10 +64,6 @@ export function initChat(notebookId) {
                 clearSavedMessages();
                 // Reload suggestions
                 loadSuggestions();
-                // Reset the textarea height
-                questionInput.style.height = 'auto';
-                // Hide source reference
-                sourceReferenceIndicator.classList.add('hidden');
             }
         });
     }
@@ -142,8 +129,8 @@ export function initChat(notebookId) {
         isGenerating = true;
         appendMessage('user', question);
         questionInput.value = '';
-        questionInput.style.height = 'auto';
-        sourceReferenceIndicator.classList.add('hidden');
+        // No need to adjust height since it's fixed
+        // Source reference is now always visible
 
         try {
             const response = await fetch(`/notebooks/${notebookId}/chat`, {
@@ -153,7 +140,10 @@ export function initChat(notebookId) {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json',
                 },
-                body: JSON.stringify({ question }),
+                body: JSON.stringify({ 
+                    question,
+                    thinking_mode: localStorage.getItem('thinking_mode_enabled') === 'true'
+                }),
             });
 
             const data = await response.json();
@@ -224,9 +214,9 @@ export function initChat(notebookId) {
             button.addEventListener('click', function() {
                 questionInput.value = this.textContent;
                 questionInput.focus();
-                sourceReferenceIndicator.classList.remove('hidden');
+                // Source reference is now always visible
                 
-                // Trigger input event to resize textarea
+                // Trigger input event for character count
                 questionInput.dispatchEvent(new Event('input'));
             });
         });

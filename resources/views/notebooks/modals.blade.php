@@ -62,11 +62,11 @@
 </x-modal>
 
 <!-- Add Source Modal -->
-<x-modal name="add-source" :show="false" focusable>
+<x-modal name="add-source" :show="false" focusable :maxWidth="'6xl'">
     <form id="add-source-form" method="POST" enctype="multipart/form-data" class="p-6">
         @csrf
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-medium text-gray-900 dark:text-gray-100">
                 {{ __('Add Source') }}
             </h2>
             <button type="button" x-on:click="$dispatch('close')" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
@@ -76,136 +76,225 @@
             </button>
         </div>
 
-        <div class="mt-6 space-y-6">
-            <!-- Source Type Selection -->
-            <div>
-                <x-input-label for="source_type" :value="__('Source Type')" />
-                <div class="mt-2 grid grid-cols-2 gap-3">
-                    <label class="relative flex cursor-pointer rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
-                        <input type="radio" name="type" value="text" class="sr-only" checked>
-                        <div class="flex w-full items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="text-sm">
-                                    <p class="font-medium text-gray-900 dark:text-gray-100">Text</p>
-                                    <p class="text-gray-500 dark:text-gray-400">Add text content directly</p>
+        <div class="border-t border-gray-200 dark:border-gray-700 my-3"></div>
+        
+        <div class="flex flex-row gap-6">
+            <!-- Left Column - Source Type Selection -->
+            <div class="w-1/3">
+                <div class="mb-4">
+                    <h3 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-2">{{ __('Select Source Type') }}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        {{ __('Choose the type of source you want to add to your notebook.') }}
+                    </p>
+                    
+                    <div class="grid grid-cols-1 gap-3">
+                        <label class="relative flex cursor-pointer rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
+                            <input type="radio" name="type" value="text" class="sr-only" checked>
+                            <div class="flex w-full items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 mr-2">
+                                        <svg class="h-5 w-5 text-blue-600 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <div class="text-sm">
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">Text</p>
+                                        <p class="text-gray-500 dark:text-gray-400">Add text content directly</p>
+                                    </div>
                                 </div>
                             </div>
-                            <svg class="h-5 w-5 text-indigo-600 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                    </label>
+                        </label>
 
-                    <label class="relative flex cursor-pointer rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
-                        <input type="radio" name="type" value="website" class="sr-only">
-                        <div class="flex w-full items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="text-sm">
-                                    <p class="font-medium text-gray-900 dark:text-gray-100">Website</p>
-                                    <p class="text-gray-500 dark:text-gray-400">Import from a webpage</p>
+                        <label class="relative flex cursor-pointer rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
+                            <input type="radio" name="type" value="website" class="sr-only">
+                            <div class="flex w-full items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 mr-2">
+                                        <svg class="h-5 w-5 text-blue-600 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                        </svg>
+                                    </div>
+                                    <div class="text-sm">
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">Website</p>
+                                        <p class="text-gray-500 dark:text-gray-400">Import from a webpage</p>
+                                    </div>
                                 </div>
                             </div>
-                            <svg class="h-5 w-5 text-indigo-600 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                            </svg>
-                        </div>
-                    </label>
+                        </label>
 
-                    <label class="relative flex cursor-pointer rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
-                        <input type="radio" name="type" value="youtube" class="sr-only">
-                        <div class="flex w-full items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="text-sm">
-                                    <p class="font-medium text-gray-900 dark:text-gray-100">YouTube</p>
-                                    <p class="text-gray-500 dark:text-gray-400">Import from YouTube</p>
+                        <label class="relative flex cursor-pointer rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
+                            <input type="radio" name="type" value="youtube" class="sr-only">
+                            <div class="flex w-full items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 mr-2">
+                                        <svg class="h-5 w-5 text-red-600 dark:text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                                        </svg>
+                                    </div>
+                                    <div class="text-sm">
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">YouTube</p>
+                                        <p class="text-gray-500 dark:text-gray-400">Import from YouTube</p>
+                                    </div>
                                 </div>
                             </div>
-                            <svg class="h-5 w-5 text-indigo-600 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </label>
+                        </label>
 
-                    <label class="relative flex cursor-pointer rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
-                        <input type="radio" name="type" value="file" class="sr-only">
-                        <div class="flex w-full items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="text-sm">
-                                    <p class="font-medium text-gray-900 dark:text-gray-100">File</p>
-                                    <p class="text-gray-500 dark:text-gray-400">Upload a file</p>
+                        <label class="relative flex cursor-pointer rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
+                            <input type="radio" name="type" value="file" class="sr-only">
+                            <div class="flex w-full items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 mr-2">
+                                        <svg class="h-5 w-5 text-green-600 dark:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                    </div>
+                                    <div class="text-sm">
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">File</p>
+                                        <p class="text-gray-500 dark:text-gray-400">Upload a file</p>
+                                    </div>
                                 </div>
                             </div>
-                            <svg class="h-5 w-5 text-indigo-600 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                        </div>
-                    </label>
-                </div>
-                <x-input-error :messages="$errors->get('type')" class="mt-2" />
-            </div>
-
-            <!-- Source Name -->
-            <div>
-                <x-input-label for="source_name" :value="__('Source Name')" />
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                        </svg>
+                        </label>
                     </div>
-                    <x-text-input id="source_name" name="name" type="text" class="pl-10 block w-full" required placeholder="Enter a name for this source" />
+                    <x-input-error :messages="$errors->get('type')" class="mt-2" />
                 </div>
-                <x-input-error :messages="$errors->get('name')" class="mt-2" />
             </div>
-
-            <!-- Dynamic Fields -->
-            <div id="source_content_field">
-                <x-input-label for="source_content" :value="__('Content')" />
-                <div class="mt-1">
-                    <textarea id="source_content" name="content" class="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 shadow-sm" rows="6" placeholder="Enter your text content here..."></textarea>
+            
+            <!-- Right Column - Source Details Entry and Information -->
+            <div class="w-2/3">
+                <div class="mb-4">
+                    <h3 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-2">{{ __('Source Details') }}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        {{ __('Enter information about your source.') }}
+                    </p>
                 </div>
-                <x-input-error :messages="$errors->get('content')" class="mt-2" />
-            </div>
-
-            <div id="source_url_field" class="hidden">
-                <x-input-label for="source_url" :value="__('URL')" />
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                    </div>
-                    <x-text-input id="source_url" name="url" type="url" class="pl-10 block w-full" placeholder="https://..." />
-                </div>
-                <x-input-error :messages="$errors->get('url')" class="mt-2" />
-            </div>
-
-            <div id="source_file_field" class="hidden">
-                <x-input-label for="source_file" :value="__('File')" />
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-700 border-dashed rounded-md">
-                    <div class="space-y-1 text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <div class="flex text-sm text-gray-600 dark:text-gray-400">
-                            <label for="source_file" class="relative cursor-pointer rounded-md font-medium text-indigo-600 dark:text-indigo-500 hover:text-indigo-500 dark:hover:text-indigo-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                                <span>Upload a file</span>
-                                <input id="source_file" name="file" type="file" class="sr-only" accept=".pdf">
-                            </label>
-                            <p class="pl-1">or drag and drop</p>
+                
+                <!-- Source Name -->
+                <div class="mb-4">
+                    <x-input-label for="source_name" :value="__('Source Name')" class="text-gray-300" />
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
                         </div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                            PDF files only, up to 10MB
-                        </p>
-                        <p id="selected-file-name" class="text-sm text-indigo-600 dark:text-indigo-500 mt-2 hidden"></p>
+                        <input id="source_name" name="name" type="text" class="pl-10 block w-full rounded-md border-0 bg-gray-800 text-gray-300 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500" required placeholder="Enter a name for this source" />
+                    </div>
+                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">A descriptive name helps you identify this source later</p>
+                </div>
+
+                <!-- Dynamic Fields -->
+                <div id="source_content_field">
+                    <x-input-label for="source_content" :value="__('Content')" class="text-gray-300" />
+                    <div class="mt-1">
+                        <textarea id="source_content" name="content" class="tinymce-editor block w-full rounded-md border-0 bg-gray-800 text-gray-300 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500" rows="6" placeholder="Enter your text content here..."></textarea>
+                    </div>
+                    <x-input-error :messages="$errors->get('content')" class="mt-2" />
+                </div>
+
+                <div id="source_url_field" class="hidden">
+                    <x-input-label for="source_url" :value="__('URL')" class="text-gray-300" />
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                        </div>
+                        <input id="source_url" name="url" type="url" class="pl-10 block w-full rounded-md border-0 bg-gray-800 text-gray-300 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500" placeholder="https://..." />
+                    </div>
+                    <x-input-error :messages="$errors->get('url')" class="mt-2" />
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Enter the complete URL including https://</p>
+                </div>
+
+                <div id="source_file_field" class="hidden">
+                    <x-input-label for="source_file" :value="__('File')" />
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-700 border-dashed rounded-md">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600 dark:text-gray-400">
+                                <label for="source_file" class="relative cursor-pointer rounded-md font-medium text-blue-600 dark:text-blue-500 hover:text-blue-500 dark:hover:text-blue-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                    <span>Upload a file</span>
+                                    <input id="source_file" name="file" type="file" class="sr-only" accept=".pdf">
+                                </label>
+                                <p class="pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                PDF files only, up to 10MB
+                            </p>
+                            <p id="selected-file-name" class="text-sm text-blue-600 dark:text-blue-500 mt-2 hidden"></p>
+                        </div>
+                    </div>
+                    <x-input-error :messages="$errors->get('file')" class="mt-2" />
+                </div>
+                
+                <!-- Dynamic instructions based on source type -->
+                <div class="mt-6">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center mb-2">
+                            <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span id="source-type-title">Text Source Information</span>
+                        </h4>
+                        
+                        <div id="text-instructions">
+                            <p class="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                                Add text content directly to your notebook. Useful for:
+                            </p>
+                            <ul class="text-sm text-blue-700 dark:text-blue-400 list-disc list-inside space-y-1">
+                                <li>Personal notes or observations</li>
+                                <li>Copy-pasted content from elsewhere</li>
+                                <li>Custom information you want to reference</li>
+                            </ul>
+                        </div>
+                        
+                        <div id="website-instructions" class="hidden">
+                            <p class="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                                Import content from a webpage. The system will:
+                            </p>
+                            <ul class="text-sm text-blue-700 dark:text-blue-400 list-disc list-inside space-y-1">
+                                <li>Extract the main content from the URL</li>
+                                <li>Remove ads and unnecessary elements</li>
+                                <li>Process up to 25,000 characters</li>
+                            </ul>
+                            <p class="text-sm text-blue-700 dark:text-blue-400 mt-2">
+                                <strong>Note:</strong> Some websites may block content extraction
+                            </p>
+                        </div>
+                        
+                        <div id="youtube-instructions" class="hidden">
+                            <p class="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                                Import content from a YouTube video. Requirements:
+                            </p>
+                            <ul class="text-sm text-blue-700 dark:text-blue-400 list-disc list-inside space-y-1">
+                                <li>Standard YouTube URL (youtube.com/watch?v= or youtu.be/)</li>
+                                <li>Public or unlisted videos only</li>
+                                <li>Videos with available transcripts work best</li>
+                            </ul>
+                            <p class="text-sm text-blue-700 dark:text-blue-400 mt-2">
+                                <strong>Format:</strong> https://www.youtube.com/watch?v=VIDEO_ID
+                            </p>
+                        </div>
+                        
+                        <div id="file-instructions" class="hidden">
+                            <p class="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                                Upload a file to extract its content. Limitations:
+                            </p>
+                            <ul class="text-sm text-blue-700 dark:text-blue-400 list-disc list-inside space-y-1">
+                                <li>PDF files only</li>
+                                <li>Maximum file size: 10MB</li>
+                                <li>Text-based PDFs work best (scanned documents may not extract well)</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <x-input-error :messages="$errors->get('file')" class="mt-2" />
             </div>
         </div>
 
-        <div class="mt-6 flex justify-end space-x-3">
+        <div class="border-t border-gray-200 dark:border-gray-700 mt-6 pt-6 flex justify-end space-x-3">
             <x-secondary-button x-on:click="$dispatch('close')">
                 {{ __('Cancel') }}
             </x-secondary-button>
@@ -275,7 +364,7 @@
             @if($source->isText())
                 <div class="mt-6">
                     <x-input-label for="content-{{ $source->id }}" :value="__('Content')" />
-                    <textarea id="content-{{ $source->id }}" name="content" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 shadow-sm" rows="10">{{ old('content', $source->data) }}</textarea>
+                    <textarea id="content-{{ $source->id }}" name="content" class="tinymce-editor mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 shadow-sm" rows="10">{{ old('content', $source->data) }}</textarea>
                     <x-input-error :messages="$errors->get('content')" class="mt-2" />
                 </div>
             @elseif($source->isWebsite())
@@ -702,6 +791,13 @@
         const selectedFileName = document.getElementById('selected-file-name');
         const notebookId = document.querySelector('[data-notebook-id]').dataset.notebookId;
 
+        // Instruction elements
+        const sourceTypeTitle = document.getElementById('source-type-title');
+        const textInstructions = document.getElementById('text-instructions');
+        const websiteInstructions = document.getElementById('website-instructions');
+        const youtubeInstructions = document.getElementById('youtube-instructions');
+        const fileInstructions = document.getElementById('file-instructions');
+
         // Set the form action dynamically
         sourceForm.action = `/notebooks/${notebookId}/sources`;
 
@@ -710,114 +806,81 @@
             input.addEventListener('change', function() {
                 // Update visual selection
                 sourceTypeInputs.forEach(radio => {
-                    radio.closest('label').classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900/20');
+                    radio.closest('label').classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
                 });
-                this.closest('label').classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900/20');
+                this.closest('label').classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
 
                 // Show/hide relevant fields
                 contentField.classList.add('hidden');
                 urlField.classList.add('hidden');
                 fileField.classList.add('hidden');
 
+                // Hide all instruction panels
+                textInstructions.classList.add('hidden');
+                websiteInstructions.classList.add('hidden');
+                youtubeInstructions.classList.add('hidden');
+                fileInstructions.classList.add('hidden');
+
                 switch(this.value) {
                     case 'text':
                         contentField.classList.remove('hidden');
+                        textInstructions.classList.remove('hidden');
+                        sourceTypeTitle.textContent = 'Text Source Information';
                         break;
                     case 'website':
+                        urlField.classList.remove('hidden');
+                        websiteInstructions.classList.remove('hidden');
+                        sourceTypeTitle.textContent = 'Website Source Information';
+                        break;
                     case 'youtube':
                         urlField.classList.remove('hidden');
+                        youtubeInstructions.classList.remove('hidden');
+                        sourceTypeTitle.textContent = 'YouTube Source Information';
                         break;
                     case 'file':
                         fileField.classList.remove('hidden');
+                        fileInstructions.classList.remove('hidden');
+                        sourceTypeTitle.textContent = 'File Source Information';
                         break;
                 }
             });
         });
 
         // Show selected file name
-        fileInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
                 const file = this.files[0];
-                selectedFileName.textContent = file.name;
-                selectedFileName.classList.remove('hidden');
-                
-                // Validate file type
-                const fileType = file.type;
-                if (fileType !== 'application/pdf') {
-                    alert('Only PDF files are allowed.');
-                    this.value = '';
+                if (file) {
+                    // Validate file type
+                    if (file.type !== 'application/pdf') {
+                        alert('Please select a PDF file.');
+                        this.value = '';
+                        selectedFileName.classList.add('hidden');
+                        return;
+                    }
+                    
+                    // Validate file size (max 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('File size must be less than 10MB.');
+                        this.value = '';
+                        selectedFileName.classList.add('hidden');
+                        return;
+                    }
+                    
+                    selectedFileName.textContent = file.name;
+                    selectedFileName.classList.remove('hidden');
+                } else {
                     selectedFileName.classList.add('hidden');
                 }
-                
-                // Validate file size (10MB max)
-                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-                if (file.size > maxSize) {
-                    alert('File size exceeds 10MB limit.');
-                    this.value = '';
-                    selectedFileName.classList.add('hidden');
-                }
-            } else {
-                selectedFileName.classList.add('hidden');
-            }
-        });
-
-        // Handle file drag and drop
-        const dropZone = fileField.querySelector('.border-dashed');
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
+            });
+        }
+        
+        // Initialize - select the default option (text)
+        const defaultTypeInput = document.querySelector('input[name="type"][value="text"]');
+        if (defaultTypeInput) {
+            defaultTypeInput.closest('label').classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
         }
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            dropZone.classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900/20');
-        }
-
-        function unhighlight(e) {
-            dropZone.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900/20');
-        }
-
-        dropZone.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            if (files && files.length > 0) {
-                const file = files[0];
-                
-                // Validate file type
-                const fileType = file.type;
-                if (fileType !== 'application/pdf') {
-                    alert('Only PDF files are allowed.');
-                    return;
-                }
-                
-                // Validate file size (10MB max)
-                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-                if (file.size > maxSize) {
-                    alert('File size exceeds 10MB limit.');
-                    return;
-                }
-                
-                fileInput.files = files;
-                selectedFileName.textContent = file.name;
-                selectedFileName.classList.remove('hidden');
-            }
-        }
-
-        // Handle form submission
         sourceForm.addEventListener('submit', function(e) {
             e.preventDefault();
             

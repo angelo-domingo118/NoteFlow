@@ -24,9 +24,14 @@ class GeminiService
     protected string $visionEndpoint = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-vision:generateContent';
 
     /**
+     * The Gemini API endpoint for thinking mode.
+     */
+    protected string $thinkingEndpoint = 'https://generativelanguage.googleapis.com/v1alpha/models/gemini-2.0-flash-thinking-exp:generateContent';
+
+    /**
      * Generate a response from Gemini based on the user's question and context.
      */
-    public function generateResponse(string $question, Notebook $notebook): string
+    public function generateResponse(string $question, Notebook $notebook, bool $thinkingMode = false): string
     {
         $activeSourcesData = $this->getActiveSourcesContent($notebook);
         
@@ -36,37 +41,48 @@ class GeminiService
         });
         
         if ($hasYoutubeSource) {
-            return $this->generateMultimodalResponse($question, $activeSourcesData);
+            return $this->generateMultimodalResponse($question, $activeSourcesData, $thinkingMode);
         }
         
-        return $this->generateTextResponse($question, $activeSourcesData);
+        return $this->generateTextResponse($question, $activeSourcesData, $thinkingMode);
     }
     
     /**
      * Generate a text-only response using the Gemini text model.
      */
-    protected function generateTextResponse(string $question, Collection $sources): string
+    protected function generateTextResponse(string $question, Collection $sources, bool $thinkingMode = false): string
     {
-        $response = Http::withHeaders([
+        $endpoint = $thinkingMode ? $this->thinkingEndpoint : $this->endpoint;
+        
+        // Set headers based on the model being used
+        $headers = [
             'Content-Type' => 'application/json',
-        ])->post($this->endpoint . '?key=' . config('services.gemini.api_key'), [
-            'contents' => [
-                [
-                    'parts' => [
-                        [
-                            'text' => $this->buildPrompt($question, $sources)
+        ];
+        
+        // Add API version header for thinking mode
+        if ($thinkingMode) {
+            $headers['x-goog-api-version'] = 'v1alpha';
+        }
+        
+        $response = Http::withHeaders($headers)
+            ->post($endpoint . '?key=' . config('services.gemini.api_key'), [
+                'contents' => [
+                    [
+                        'parts' => [
+                            [
+                                'text' => $this->buildPrompt($question, $sources)
+                            ]
                         ]
                     ]
-                ]
-            ],
-            'generationConfig' => [
-                'temperature' => 0.7,
-                'topK' => 40,
-                'topP' => 0.95,
-                'maxOutputTokens' => 2048,
-            ],
-            'safetySettings' => $this->getSafetySettings(),
-        ]);
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.7,
+                    'topK' => 40,
+                    'topP' => 0.95,
+                    'maxOutputTokens' => 2048,
+                ],
+                'safetySettings' => $this->getSafetySettings(),
+            ]);
 
         return $this->processApiResponse($response);
     }
@@ -74,7 +90,7 @@ class GeminiService
     /**
      * Generate a multimodal response for sources with YouTube videos.
      */
-    protected function generateMultimodalResponse(string $question, Collection $sources): string
+    protected function generateMultimodalResponse(string $question, Collection $sources, bool $thinkingMode = false): string
     {
         // Prepare the parts array for the multimodal request
         $parts = [];
@@ -103,22 +119,34 @@ class GeminiService
             }
         }
         
-        $response = Http::withHeaders([
+        // Use thinking endpoint if thinking mode is enabled, otherwise use vision endpoint
+        $endpoint = $thinkingMode ? $this->thinkingEndpoint : $this->visionEndpoint;
+        
+        // Set headers based on the model being used
+        $headers = [
             'Content-Type' => 'application/json',
-        ])->post($this->visionEndpoint . '?key=' . config('services.gemini.api_key'), [
-            'contents' => [
-                [
-                    'parts' => $parts
-                ]
-            ],
-            'generationConfig' => [
-                'temperature' => 0.7,
-                'topK' => 40,
-                'topP' => 0.95,
-                'maxOutputTokens' => 2048,
-            ],
-            'safetySettings' => $this->getSafetySettings(),
-        ]);
+        ];
+        
+        // Add API version header for thinking mode
+        if ($thinkingMode) {
+            $headers['x-goog-api-version'] = 'v1alpha';
+        }
+        
+        $response = Http::withHeaders($headers)
+            ->post($endpoint . '?key=' . config('services.gemini.api_key'), [
+                'contents' => [
+                    [
+                        'parts' => $parts
+                    ]
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.7,
+                    'topK' => 40,
+                    'topP' => 0.95,
+                    'maxOutputTokens' => 2048,
+                ],
+                'safetySettings' => $this->getSafetySettings(),
+            ]);
         
         return $this->processApiResponse($response);
     }
@@ -141,12 +169,31 @@ class GeminiService
 
         $data = $response->json();
         
-        if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-            Log::error('Unexpected Gemini API response structure:', ['response' => $data]);
-            return 'Error: Received unexpected response format from API';
+        // Log the full response for debugging
+        Log::debug('Gemini API response:', ['response' => $data]);
+        
+        // Check for the standard response format
+        if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+            return $data['candidates'][0]['content']['parts'][0]['text'];
         }
-
-        return $data['candidates'][0]['content']['parts'][0]['text'];
+        
+        // Check for thinking model response format (might be different)
+        if (isset($data['candidates'][0]['content']['parts'])) {
+            $parts = $data['candidates'][0]['content']['parts'];
+            // Concatenate all text parts
+            $text = '';
+            foreach ($parts as $part) {
+                if (isset($part['text'])) {
+                    $text .= $part['text'];
+                }
+            }
+            if (!empty($text)) {
+                return $text;
+            }
+        }
+        
+        Log::error('Unexpected Gemini API response structure:', ['response' => $data]);
+        return 'Error: Received unexpected response format from API';
     }
     
     /**
