@@ -42,6 +42,11 @@
         #thinking-mode:checked ~ .dot {
             animation: thinking 1.5s infinite;
         }
+        
+        /* Fix for Alpine.js initialization flicker */
+        [x-cloak] { 
+            display: none !important; 
+        }
     </style>
     
     <div class="notebook-page">
@@ -50,9 +55,9 @@
         <div class="fixed inset-0 top-16 bg-gray-50 dark:bg-gray-900" data-notebook-id="{{ $notebook->id }}">
             <div class="flex h-full flex-container">
                 <!-- Sources Panel -->
-                <div x-data="{ open: true }" :class="[open ? 'w-72' : 'w-16', 'transition-all duration-300']" class="relative z-30 flex flex-col bg-white dark:bg-gray-800 border-r dark:border-gray-700 shadow-sm">
+                <div x-data="{ open: true }" x-cloak :class="[open ? 'w-72' : 'w-16', 'transition-all duration-300']" class="relative z-30 flex flex-col bg-white dark:bg-gray-800 border-r dark:border-gray-700 shadow-sm">
                     <div class="flex items-center justify-between h-14 px-4 border-b dark:border-gray-700">
-                        <h3 x-show="open" 
+                        <h3 x-show="open" x-cloak
                            x-transition:enter="transition ease-out duration-200"
                            x-transition:enter-start="opacity-0 -translate-x-2"
                            x-transition:enter-end="opacity-100 translate-x-0"
@@ -80,17 +85,17 @@
                     <div class="flex-1 overflow-hidden flex flex-col p-4">
                         <!-- Add source button -->
                         <button type="button" @click="$dispatch('open-modal', 'add-source')" class="w-full">
-                            <span x-show="open" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                            <span x-show="open" x-cloak class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
                                 {{ __('Add source') }}
                             </span>
-                            <span x-show="!open" class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700">
+                            <span x-show="!open" x-cloak class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700">
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                             </span>
                         </button>
 
-                        <div x-show="open" class="mt-4 flex items-center">
+                        <div x-show="open" x-cloak class="mt-4 flex items-center">
                             <input type="checkbox" id="select-all-sources" onchange="toggleAllSources(event)" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="select-all-sources" class="ml-2 text-sm text-gray-900 dark:text-gray-100">{{ __('Select All') }}</label>
                             
@@ -106,9 +111,9 @@
                             <div class="space-y-2">
                                 @foreach($sources as $source)
                                     <!-- Expanded view -->
-                                    <div x-show="open" class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <div x-show="open" x-cloak class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <div class="flex items-center overflow-hidden">
-                                            <input type="checkbox" id="source-{{ $source->id }}" name="source-{{ $source->id }}" onchange="toggleSource({{ $source->id }})" {{ $source->is_active ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <input type="checkbox" id="source-{{ $source->id }}" name="source-{{ $source->id }}" onchange="toggleSource('{{ $source->id }}')" {{ $source->is_active ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                                             <div class="ml-2 flex items-center">
                                                 @if($source->isText())
                                                     <svg class="w-4 h-4 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,7 +220,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                                 </svg>
                                             </button>
-                                            <div x-show="menuOpen" x-cloak @click.away="menuOpen = false" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5">
+                                            <div x-show="menuOpen" x-cloak @click.away="menuOpen = false" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-50">
                                                 <div class="py-1">
                                                     <button @click="$dispatch('open-modal', 'edit-source-{{ $source->id }}')" class="block w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                                                         {{ __('Edit') }}
@@ -228,7 +233,7 @@
                                         </div>
                                     </div>
                                     <!-- Collapsed view -->
-                                    <div x-show="!open" class="flex justify-center">
+                                    <div x-show="!open" x-cloak class="flex justify-center">
                                         <button @click="$dispatch('open-modal', 'edit-source-{{ $source->id }}')" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="{{ $source->name }}">
                                             @if($source->isText())
                                                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -298,38 +303,11 @@
                                 <p class="max-w-md mx-auto">
                                     Use this chat to ask questions about the content in your sources. The AI will analyze your active sources and provide relevant answers.
                                 </p>
-                                
-                                <!-- Quick start suggestions -->
-                                <div class="mt-6">
-                                    <h4 class="text-sm font-medium mb-3">Try asking:</h4>
-                                    <div id="suggestions" class="flex flex-col space-y-2 max-w-md mx-auto">
-                                        <div id="loading-suggestions" class="hidden">
-                                            <div class="flex justify-center items-center space-x-2 py-4">
-                                                <div class="spinner-border animate-spin h-5 w-5 border-2 border-t-transparent border-blue-500 rounded-full"></div>
-                                                <span class="text-sm text-gray-500 dark:text-gray-400">Generating suggestions...</span>
-                                            </div>
-                                        </div>
-                                        
-                                        <div id="default-suggestions">
-                                            <button type="button" class="w-full text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                                Summarize the key points from all sources
-                                            </button>
-                                            <button type="button" class="w-full text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                                What are the main arguments presented?
-                                            </button>
-                                            <button type="button" class="w-full text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                                Compare and contrast the different perspectives
-                                            </button>
-                                        </div>
-                                        
-                                        <div id="ai-suggestions" class="hidden flex flex-col space-y-2 w-full"></div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         
                         <!-- Chat loading indicator -->
-                        <div id="chat-loading" class="hidden absolute inset-0 bg-white/90 dark:bg-gray-800/90 flex items-center justify-center z-10">
+                        <div id="chat-loading" class="absolute inset-0 bg-white/90 dark:bg-gray-800/90 flex items-center justify-center z-10" style="display: none;">
                             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md border border-gray-200 dark:border-gray-700">
                                 <div class="flex items-center space-x-4">
                                     <div class="ai-thinking-animation">
@@ -430,9 +408,9 @@
                 </div>
 
                 <!-- Notes Panel -->
-                <div x-data="{ open: true }" :class="[open ? 'w-96' : 'w-16', 'transition-all duration-300']" class="relative z-30 flex flex-col bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm">
+                <div x-data="{ open: true }" x-cloak :class="[open ? 'w-96' : 'w-16', 'transition-all duration-300']" class="relative z-30 flex flex-col bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm">
                     <div class="flex items-center justify-between h-14 px-4 border-b dark:border-gray-700">
-                        <h3 x-show="open" 
+                        <h3 x-show="open" x-cloak
                            x-transition:enter="transition ease-out duration-200"
                            x-transition:enter-start="opacity-0 -translate-x-2"
                            x-transition:enter-end="opacity-100 translate-x-0"
@@ -461,10 +439,10 @@
                         <div class="space-y-2">
                             <!-- New note button -->
                             <button type="button" @click="$dispatch('open-modal', 'add-note')" class="w-full">
-                                <span x-show="open" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                <span x-show="open" x-cloak class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
                                     {{ __('New Note') }}
                                 </span>
-                                <span x-show="!open" class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700">
+                                <span x-show="!open" x-cloak class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                     </svg>
@@ -473,7 +451,7 @@
 
                         </div>
 
-                        <div x-show="open" class="mt-4 flex items-center">
+                        <div x-show="open" x-cloak class="mt-4 flex items-center">
                             <input type="checkbox" id="select-all-notes" onchange="toggleAllNotes(event)" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="select-all-notes" class="ml-2 text-sm text-gray-900 dark:text-gray-100">{{ __('Select All') }}</label>
                             
@@ -499,7 +477,7 @@
                             <div class="space-y-4">
                                 @foreach($notes as $note)
                                     <!-- Expanded view -->
-                                    <div x-show="open" class="p-4 rounded-md bg-gray-50 dark:bg-gray-700">
+                                    <div x-show="open" x-cloak class="p-4 rounded-md bg-gray-50 dark:bg-gray-700">
                                         <div class="flex justify-between items-start">
                                             <div class="flex items-center">
                                                 <input type="checkbox" id="note-{{ $note->id }}" name="note-{{ $note->id }}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
@@ -511,7 +489,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                                     </svg>
                                                 </button>
-                                                <div x-show="menuOpen" x-cloak @click.away="menuOpen = false" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5">
+                                                <div x-show="menuOpen" x-cloak @click.away="menuOpen = false" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-50">
                                                     <div class="py-1">
                                                         <button @click="$dispatch('open-modal', 'edit-note-{{ $note->id }}')" class="block w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                                                             {{ __('Edit') }}
@@ -537,7 +515,7 @@
                                         </div>
                                     </div>
                                     <!-- Collapsed view -->
-                                    <div x-show="!open" class="flex justify-center">
+                                    <div x-show="!open" x-cloak class="flex justify-center">
                                         <button @click="$dispatch('open-modal', 'edit-note-{{ $note->id }}')" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="{{ $note->title }}">
                                             <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -631,17 +609,16 @@
                         // Use gray colors for zero sources
                         indicator.classList.remove('bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-600', 'dark:text-blue-400');
                         indicator.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
-                        
-                        // Show default suggestions when no sources are active
-                        document.getElementById('default-suggestions').classList.remove('hidden');
-                        document.getElementById('ai-suggestions').classList.add('hidden');
                     } else {
                         // Use blue colors for active sources
                         indicator.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
                         indicator.classList.add('bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-600', 'dark:text-blue-400');
-                        
-                        // Generate AI suggestions when sources are active
-                        generateAiSuggestions();
+                    }
+                    
+                    // Always show default suggestions if the element exists
+                    const defaultSuggestions = document.getElementById('default-suggestions');
+                    if (defaultSuggestions) {
+                        defaultSuggestions.classList.remove('hidden');
                     }
                 }
             }
@@ -656,92 +633,21 @@
                 observer.observe(countElement, { childList: true, characterData: true, subtree: true });
             }
             
-            // Function to generate AI suggestions based on active sources
-            function generateAiSuggestions() {
-                const activeSources = Array.from(document.querySelectorAll('input[name^="source-"]:checked')).map(
-                    checkbox => ({
-                        id: checkbox.id.replace('source-', ''),
-                        name: checkbox.nextElementSibling?.querySelector('label')?.textContent || 'Source'
-                    })
-                );
-                
-                if (activeSources.length === 0) return;
-                
-                // Show loading state
-                document.getElementById('default-suggestions').classList.add('hidden');
-                document.getElementById('loading-suggestions').classList.remove('hidden');
-                document.getElementById('ai-suggestions').classList.add('hidden');
-                
-                const notebookId = document.querySelector('[data-notebook-id]').dataset.notebookId;
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-                
-                // Call the API to generate suggestions
-                fetch(`/api/notebooks/${notebookId}/generate-suggestions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        sources: activeSources.map(s => s.id),
-                        model: 'gemini-2.0-flash-lite'
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to generate suggestions');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Hide loading state
-                    document.getElementById('loading-suggestions').classList.add('hidden');
-                    
-                    if (data.suggestions && data.suggestions.length > 0) {
-                        // Display AI-generated suggestions
-                        const aiSuggestionsContainer = document.getElementById('ai-suggestions');
-                        aiSuggestionsContainer.innerHTML = '';
-                        
-                        data.suggestions.forEach(suggestion => {
-                            const button = document.createElement('button');
-                            button.type = 'button';
-                            button.className = 'w-full text-sm px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors';
-                            button.textContent = suggestion;
-                            button.addEventListener('click', () => {
-                                // Fill the chat input with this suggestion
-                                if (questionInput) {
-                                    questionInput.value = suggestion;
-                                    questionInput.focus();
-                                }
-                            });
-                            
-                            aiSuggestionsContainer.appendChild(button);
-                        });
-                        
-                        aiSuggestionsContainer.classList.remove('hidden');
-                    } else {
-                        // Show default suggestions if no AI suggestions were generated
-                        document.getElementById('default-suggestions').classList.remove('hidden');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error generating suggestions:', error);
-                    // Show default suggestions on error
-                    document.getElementById('loading-suggestions').classList.add('hidden');
-                    document.getElementById('default-suggestions').classList.remove('hidden');
-                });
-            }
+            // Function to generate AI suggestions based on active sources - REMOVED
             
             // Add click handlers for default suggestions
-            document.querySelectorAll('#default-suggestions button').forEach(button => {
-                button.addEventListener('click', () => {
-                    if (questionInput) {
-                        questionInput.value = button.textContent.trim();
-                        questionInput.focus();
-                    }
+            const defaultSuggestions = document.getElementById('default-suggestions');
+            if (defaultSuggestions) {
+                defaultSuggestions.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        if (questionInput) {
+                            // Replace multiple spaces with a single space and trim
+                            questionInput.value = button.textContent.replace(/\s+/g, ' ').trim();
+                            questionInput.focus();
+                        }
+                    });
                 });
-            });
+            }
             
             // Layout adjustment function
             function adjustLayout() {
@@ -1204,8 +1110,8 @@
         // Function to handle source deletion
         function deleteSource(sourceId, sourceUrl) {
             showConfirmationModal(
-                '{{ __('Delete Source') }}',
-                '{{ __('Are you sure you want to delete this source? This action cannot be undone.') }}',
+                "{{ __('Delete Source') }}",
+                "{{ __('Are you sure you want to delete this source? This action cannot be undone.') }}",
                 function() {
                     const form = document.createElement('form');
                     form.method = 'POST';
@@ -1226,8 +1132,8 @@
         window.addEventListener('delete-source', (event) => {
             const { id, url } = event.detail;
             showConfirmationModal(
-                '{{ __('Delete Source') }}',
-                '{{ __('Are you sure you want to delete this source? This action cannot be undone.') }}',
+                "{{ __('Delete Source') }}",
+                "{{ __('Are you sure you want to delete this source? This action cannot be undone.') }}",
                 function() {
                     const form = document.createElement('form');
                     form.method = 'POST';
@@ -1243,8 +1149,8 @@
         window.addEventListener('delete-note', (event) => {
             const { id, url } = event.detail;
             showConfirmationModal(
-                '{{ __('Delete Note') }}',
-                '{{ __('Are you sure you want to delete this note? This action cannot be undone.') }}',
+                "{{ __('Delete Note') }}",
+                "{{ __('Are you sure you want to delete this note? This action cannot be undone.') }}",
                 function() {
                     const form = document.createElement('form');
                     form.method = 'POST';

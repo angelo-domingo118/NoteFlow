@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\SuggestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,10 +16,4 @@ use App\Http\Controllers\Api\SuggestionController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-});
-
-// Notebook suggestion routes
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/notebooks/{notebook}/generate-suggestions', [SuggestionController::class, 'generate'])
-        ->name('api.notebooks.generate-suggestions');
 }); 

@@ -121,6 +121,7 @@
             function openModal(id) {
                 const modal = document.getElementById(id);
                 modal.classList.remove('hidden');
+                modal.classList.add('flex');
                 modal.setAttribute('aria-hidden', 'false');
                 
                 // Close button functionality
@@ -148,6 +149,7 @@
             function closeModal(id) {
                 const modal = document.getElementById(id);
                 modal.classList.add('hidden');
+                modal.classList.remove('flex');
                 modal.setAttribute('aria-hidden', 'true');
             }
         </script>
@@ -197,7 +199,7 @@
                 </div>
 
                 <!-- Create New Button -->
-                <button type="button" onclick="openModal('create-notebook')" class="flex items-center px-4 py-2 bg-blue-600/90 backdrop-blur-sm border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 shadow-sm hover:shadow transform hover:scale-105 transition-all duration-200">
+                <button type="button" onclick="openModal('create-notebook')" class="flex items-center px-4 py-2 bg-blue-600/90 backdrop-blur-sm border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-all duration-200 shadow-sm hover:shadow transform hover:scale-105">
                     <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -210,7 +212,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Empty State -->
-            <div style="{{ count($notebooks) ? 'display: none;' : '' }}" class="text-center py-12 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 rounded-xl shadow-sm">
+            <div style="<?php echo count($notebooks) ? 'display: none;' : ''; ?>" class="text-center py-12 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 rounded-xl shadow-sm">
                 <svg class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
@@ -227,7 +229,7 @@
             </div>
 
             <!-- Grid View -->
-            <div id="grid-view" style="{{ count($notebooks) ? '' : 'display: none;' }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-visible">
+            <div id="grid-view" style="<?php echo count($notebooks) ? '' : 'display: none;'; ?>" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-visible">
                 @foreach ($notebooks as $notebook)
                 <div class="relative group">
                     <div class="block p-6 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 border border-gray-200/20 dark:border-gray-700/20 relative">
@@ -282,7 +284,7 @@
             </div>
 
             <!-- List View -->
-            <div id="list-view" style="{{ count($notebooks) ? 'display: none;' : '' }}" class="rounded-xl bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg shadow-sm border border-gray-200/20 dark:border-gray-700/20 overflow-visible">
+            <div id="list-view" style="<?php echo count($notebooks) ? 'display: none;' : ''; ?>" class="rounded-xl bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg shadow-sm border border-gray-200/20 dark:border-gray-700/20 overflow-visible">
                 <ul role="list" class="divide-y divide-gray-200/20 dark:divide-gray-700/20">
                     @foreach ($notebooks as $notebook)
                     <li class="relative hover:bg-gray-50/30 dark:hover:bg-gray-700/50 transition-colors">
@@ -341,7 +343,7 @@
     </div>
 
     <!-- Create Notebook Modal -->
-    <div id="create-notebook" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50">
+    <div id="create-notebook" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-gray-900/50" aria-hidden="true">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
             <form method="POST" action="{{ route('notebooks.store') }}" class="p-6">
                 @csrf
@@ -379,7 +381,7 @@
 
     <!-- Edit Notebook Modals -->
     @foreach ($notebooks as $notebook)
-        <div id="edit-notebook-{{ $notebook->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50">
+        <div id="edit-notebook-{{ $notebook->id }}" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-gray-900/50" aria-hidden="true">
             <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-xl max-w-md w-full">
                 <div class="p-6">
                     <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
@@ -428,7 +430,7 @@
         </div>
 
         <!-- Delete Confirmation Modal -->
-        <div id="confirm-notebook-deletion-{{ $notebook->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50">
+        <div id="confirm-notebook-deletion-{{ $notebook->id }}" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-gray-900/50" aria-hidden="true">
             <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-xl max-w-md w-full">
                 <form method="POST" action="{{ route('notebooks.destroy', $notebook) }}" class="p-6">
                     @csrf
