@@ -1,56 +1,90 @@
-<p align="center"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></p>
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .logo-text { font-family: 'Arial', sans-serif; font-weight: bold; }
+    .primary { fill: #3b82f6; }
+    .secondary { fill: #1e40af; }
+    .accent { fill: #8b5cf6; }
+  </style>
+  <rect x="40" y="35" width="50" height="65" rx="4" class="primary" />
+  <rect x="100" y="35" width="50" height="65" rx="4" class="secondary" />
+  <rect x="160" y="35" width="50" height="65" rx="4" class="accent" />
+  <rect x="45" y="45" width="40" height="4" rx="2" fill="white" />
+  <rect x="45" y="55" width="30" height="4" rx="2" fill="white" />
+  <rect x="45" y="65" width="35" height="4" rx="2" fill="white" />
+  <rect x="105" y="45" width="40" height="4" rx="2" fill="white" />
+  <rect x="105" y="55" width="25" height="4" rx="2" fill="white" />
+  <rect x="105" y="65" width="38" height="4" rx="2" fill="white" />
+  <rect x="165" y="45" width="35" height="4" rx="2" fill="white" />
+  <rect x="165" y="55" width="40" height="4" rx="2" fill="white" />
+  <rect x="165" y="65" width="28" height="4" rx="2" fill="white" />
+  <circle cx="320" cy="60" r="30" class="accent" opacity="0.8" />
+  <text x="230" y="75" class="logo-text" font-size="36" fill="#1e40af">NoteFlow</text>
+</svg>
+
+<div align="center">
+  
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+</div>
 
 # NoteFlow
 
-NoteFlow is a web application built with Laravel that helps you manage and organize your notes efficiently. It's designed as a NotebookLM clone with AI-powered features for enhanced note-taking and interaction.
+> A powerful AI-assisted note-taking application built with Laravel
 
-## Features
+NoteFlow is a web application that helps you manage and organize your notes efficiently. It's designed as a NotebookLM clone with AI-powered features for enhanced note-taking and interaction. Transform your notes with intelligent AI assistance using Gemini and Mistral models.
 
-- User authentication and registration
-- Notebook management (create, rename, delete)
-- Note creation and organization
-- AI-powered chat using Gemini and Mistral models
-- Dark mode UI with responsive design
-- Source management for AI context
-- Convert notes to reference sources
-- Rich text editing capabilities
-- Suggested questions to spark conversation
-- Multiple AI model support (Gemini and Mistral)
-- Responsive design with dark mode
+<div align="center">
 
-## Application Structure
+[Installation](#installation) •
+[Features](#features) •
+[Screenshots](#screenshots) •
+[Development](#development) •
+[License](#license)
+
+</div>
+
+## ✨ Features
+
+<table>
+  <tr>
+    <td width="50%">
+      <h3>Core Functionality</h3>
+      <ul>
+        <li>✅ User authentication and registration</li>
+        <li>✅ Notebook management (create, rename, delete)</li>
+        <li>✅ Note creation and organization</li>
+        <li>✅ Dark mode UI with responsive design</li>
+        <li>✅ Source management for AI context</li>
+      </ul>
+    </td>
+    <td width="50%">
+      <h3>AI Capabilities</h3>
+      <ul>
+        <li>🤖 AI-powered chat with Gemini and Mistral models</li>
+        <li>🔄 Convert notes to reference sources</li>
+        <li>📝 Rich text editing capabilities</li>
+        <li>💡 Suggested questions to spark conversation</li>
+        <li>🔍 OCR for document analysis</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+## 🏗️ Application Structure
 
 NoteFlow is organized into three main panels:
 
-1. **Sources Panel**: Upload or add reference materials to provide context for AI chat
-2. **Chat Panel**: Interact with AI using the Gemini or Mistral models
-3. **Notes Panel**: Create, edit, and manage your notes, with the ability to convert them to sources
+1. **Sources Panel** - Upload or add reference materials to provide context for AI chat
+2. **Chat Panel** - Interact with AI using the Gemini or Mistral models
+3. **Notes Panel** - Create, edit, and manage your notes, with the ability to convert them to sources
 
-## Credits & Technologies
+## 🚀 Installation
 
-### Backend
-- [Laravel](https://laravel.com/) - PHP framework for web application development
-- [Laravel Breeze](https://laravel.com/docs/10.x/starter-kits#laravel-breeze) - Authentication scaffolding
-- [Pest PHP](https://pestphp.com/) - Testing framework
-
-### Frontend
-- [Alpine.js](https://alpinejs.dev/) - JavaScript framework for interactivity
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [TinyMCE](https://www.tiny.cloud/) - Rich text editor via @tinymce/tinymce-vue
-- [Prism.js](https://prismjs.com/) - Syntax highlighting for code blocks
-
-### API Integrations
-- [Google Gemini API](https://ai.google.dev/) - AI model for natural language processing and multimodal content
-- [Mistral AI API](https://mistral.ai/) - AI model for OCR and text processing
-- [MrMySQL/youtube-transcript](https://github.com/mrmysql/youtube-transcript) - Package for fetching YouTube video transcripts
-- [Branko/transcriby](https://github.com/branko/transcriby) - Audio transcription service
-
-### Tools & Utilities
-- [Guzzle](https://docs.guzzlephp.org/) - HTTP client for API requests
-- [Vite](https://vitejs.dev/) - Frontend build tool
-- [XAMPP](https://www.apachefriends.org/) - Local development environment with Apache, MySQL, PHP
-
-## Prerequisites
+### Prerequisites
 
 - PHP 8.1 or higher
 - Composer
@@ -59,27 +93,25 @@ NoteFlow is organized into three main panels:
 - Git
 - XAMPP (recommended for local development)
 
-## Setup Instructions
+### Setup Instructions
 
-Follow these steps to get the project running on your local machine:
-
-### 1. Clone the Repository
+#### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/yourusername/NoteFlow.git
 cd NoteFlow
 ```
 
-### 2. Install Dependencies
+#### 2. Install Dependencies
 
 ```bash
 composer install
 npm install
 ```
 
-### 3. XAMPP Setup
+#### 3. XAMPP Setup
 
-1. Download and install XAMPP from https://www.apachefriends.org/
+1. Download and install XAMPP from [apachefriends.org](https://www.apachefriends.org/)
 2. Start Apache and MySQL services from the XAMPP Control Panel
 3. Place the NoteFlow project in the `htdocs` directory of your XAMPP installation (or create a symbolic link)
    ```bash
@@ -97,7 +129,7 @@ npm install
    - Click on "New" in the left sidebar
    - Enter "noteflow" as database name and click "Create"
 
-### 4. Environment Setup
+#### 4. Environment Setup
 
 ```bash
 cp .env.example .env
@@ -114,20 +146,20 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 5. Database Setup
+#### 5. Database Setup
 
 ```bash
 php artisan migrate
 php artisan db:seed # Optional: if seeders are available
 ```
 
-### 6. Build Assets
+#### 6. Build Assets
 
 ```bash
 npm run build
 ```
 
-### 7. Access the Application
+#### 7. Access the Application
 
 If using XAMPP:
 - Open your browser and go to http://localhost/NoteFlow/public
@@ -137,29 +169,30 @@ If using XAMPP:
   ```
   The application will be available at http://localhost:8000
 
-## Database Schema
+## 🧠 AI Configuration
 
-NoteFlow uses the following database structure:
+The application uses Gemini API and Mistral API for AI features:
 
-- **users**: User account information
-- **notebooks**: Collection of notes created by users
-- **notes**: Content created by users within notebooks
-- **sources**: Reference materials used for AI context
-
-## Additional Configuration
-
-### API Keys
-
-The application uses Gemini API and Mistral API for AI features. If you need this functionality:
-1. Get your Gemini API key from Google AI Studio
-2. Get your Mistral API key from Mistral AI platform
+1. Get your [Gemini API key](https://ai.google.dev/) from Google AI Studio
+2. Get your [Mistral API key](https://mistral.ai/) from Mistral AI platform
 3. Add them to your .env file:
 ```
 GEMINI_API_KEY=your_gemini_api_key_here
 MISTRAL_API_KEY=your_mistral_api_key_here
 ```
 
-## Queue Worker (Optional)
+## 🛠️ Development
+
+### Database Schema
+
+NoteFlow uses the following database structure:
+
+- **users** - User account information
+- **notebooks** - Collection of notes created by users
+- **notes** - Content created by users within notebooks
+- **sources** - Reference materials used for AI context
+
+### Queue Worker (Optional)
 
 If you need to process background jobs:
 
@@ -167,12 +200,54 @@ If you need to process background jobs:
 php artisan queue:work
 ```
 
-## Testing
+### Testing
 
 ```bash
 php artisan test
 ```
 
-## License
+## 🔧 Technologies Used
+
+<table>
+  <tr>
+    <th>Category</th>
+    <th>Technologies</th>
+  </tr>
+  <tr>
+    <td><strong>Backend</strong></td>
+    <td>
+      <a href="https://laravel.com/">Laravel</a> •
+      <a href="https://laravel.com/docs/10.x/starter-kits#laravel-breeze">Laravel Breeze</a> •
+      <a href="https://pestphp.com/">Pest PHP</a>
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Frontend</strong></td>
+    <td>
+      <a href="https://alpinejs.dev/">Alpine.js</a> •
+      <a href="https://tailwindcss.com/">Tailwind CSS</a> •
+      <a href="https://www.tiny.cloud/">TinyMCE</a> •
+      <a href="https://prismjs.com/">Prism.js</a>
+    </td>
+  </tr>
+  <tr>
+    <td><strong>AI & APIs</strong></td>
+    <td>
+      <a href="https://ai.google.dev/">Google Gemini API</a> •
+      <a href="https://mistral.ai/">Mistral AI API</a> •
+      <a href="https://github.com/mrmysql/youtube-transcript">YouTube Transcript</a>
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Tools</strong></td>
+    <td>
+      <a href="https://docs.guzzlephp.org/">Guzzle</a> •
+      <a href="https://vitejs.dev/">Vite</a> •
+      <a href="https://www.apachefriends.org/">XAMPP</a>
+    </td>
+  </tr>
+</table>
+
+## 📜 License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
