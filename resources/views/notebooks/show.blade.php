@@ -220,13 +220,9 @@
                                                     <button @click="$dispatch('open-modal', 'edit-source-{{ $source->id }}')" class="block w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                                                         {{ __('Edit') }}
                                                     </button>
-                                                    <form method="POST" action="{{ route('sources.destroy', $source) }}">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600" onclick="return confirm('Are you sure you want to delete this source?')">
-                                                            {{ __('Delete') }}
-                                                        </button>
-                                                    </form>
+                                                    <button @click="menuOpen = false; $dispatch('delete-source', {id: {{ $source->id }}, url: '{{ route('sources.destroy', $source) }}'})" class="block w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                                        {{ __('Delete') }}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -526,13 +522,9 @@
                                                                 {{ __('Convert to Source') }}
                                                             </button>
                                                         </form>
-                                                        <form method="POST" action="{{ route('notes.destroy', $note) }}">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600" onclick="return confirm('Are you sure you want to delete this note?')">
-                                                                {{ __('Delete') }}
-                                                            </button>
-                                                        </form>
+                                                        <button @click="menuOpen = false; $dispatch('delete-note', {id: {{ $note->id }}, url: '{{ route('notes.destroy', $note) }}'})" class="block w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                                            {{ __('Delete') }}
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -596,13 +588,17 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     @push('scripts')
     <script>
         // All chat functionality is now handled by resources/js/chat.js
         // Additional UI functionality
         document.addEventListener('DOMContentLoaded', () => {
-            // Auto-resize textarea based on content
+            // Declare questionInput once at the top so it can be used throughout
             const questionInput = document.getElementById('question');
+            const characterCount = document.getElementById('character-count');
+            
+            // Auto-resize textarea based on content
             if (questionInput) {
                 questionInput.addEventListener('input', function() {
                     // Reset height to auto to get the correct scrollHeight
@@ -714,7 +710,6 @@
                             button.textContent = suggestion;
                             button.addEventListener('click', () => {
                                 // Fill the chat input with this suggestion
-                                const questionInput = document.getElementById('question');
                                 if (questionInput) {
                                     questionInput.value = suggestion;
                                     questionInput.focus();
@@ -741,7 +736,6 @@
             // Add click handlers for default suggestions
             document.querySelectorAll('#default-suggestions button').forEach(button => {
                 button.addEventListener('click', () => {
-                    const questionInput = document.getElementById('question');
                     if (questionInput) {
                         questionInput.value = button.textContent.trim();
                         questionInput.focus();
@@ -907,15 +901,15 @@
             };
             
             // Custom confirmation modal functionality
-            const confirmationModal = document.getElementById('confirmation-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalMessage = document.getElementById('modal-message');
-            const confirmButton = document.getElementById('confirm-action');
-            const cancelButton = document.getElementById('cancel-action');
-            const modalIconContainer = document.getElementById('modal-icon-container');
-            const modalIcon = document.getElementById('modal-icon');
-            
-            function showConfirmationModal(title, message, callback, actionType = 'delete') {
+            window.showConfirmationModal = function(title, message, callback, actionType = 'delete') {
+                const confirmationModal = document.getElementById('confirmation-modal');
+                const modalTitle = document.getElementById('modal-title');
+                const modalMessage = document.getElementById('modal-message');
+                const confirmButton = document.getElementById('confirm-action');
+                const cancelButton = document.getElementById('cancel-action');
+                const modalIconContainer = document.getElementById('modal-icon-container');
+                const modalIcon = document.getElementById('modal-icon');
+                
                 modalTitle.textContent = title;
                 modalMessage.textContent = message;
                 confirmationModal.classList.remove('hidden');
@@ -958,7 +952,7 @@
                 cancelButton.onclick = function() {
                     confirmationModal.classList.add('hidden');
                 };
-            }
+            };
             
             // Delete selected sources
             document.getElementById('delete-selected-sources').addEventListener('click', function() {
@@ -1187,9 +1181,6 @@
             }
             
             // Character count for chat input
-            const questionInput = document.getElementById('question');
-            const characterCount = document.getElementById('character-count');
-            
             if (questionInput && characterCount) {
                 questionInput.addEventListener('input', function() {
                     const count = this.value.length;
@@ -1208,6 +1199,61 @@
                     }
                 });
             }
+        });
+
+        // Function to handle source deletion
+        function deleteSource(sourceId, sourceUrl) {
+            showConfirmationModal(
+                '{{ __('Delete Source') }}',
+                '{{ __('Are you sure you want to delete this source? This action cannot be undone.') }}',
+                function() {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = sourceUrl;
+                    form.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
+        }
+    
+        // Additional UI functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            // ... existing code ...
+        });
+
+        // Event listener for delete-source event
+        window.addEventListener('delete-source', (event) => {
+            const { id, url } = event.detail;
+            showConfirmationModal(
+                '{{ __('Delete Source') }}',
+                '{{ __('Are you sure you want to delete this source? This action cannot be undone.') }}',
+                function() {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+                    form.innerHTML = `<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
+        });
+
+        // Event listener for delete-note event
+        window.addEventListener('delete-note', (event) => {
+            const { id, url } = event.detail;
+            showConfirmationModal(
+                '{{ __('Delete Note') }}',
+                '{{ __('Are you sure you want to delete this note? This action cannot be undone.') }}',
+                function() {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+                    form.innerHTML = `<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
         });
     </script>
     @endpush
