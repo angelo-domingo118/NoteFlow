@@ -1,51 +1,26 @@
-<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .logo-text { font-family: 'Arial', sans-serif; font-weight: bold; }
-    .primary { fill: #3b82f6; }
-    .secondary { fill: #1e40af; }
-    .accent { fill: #8b5cf6; }
-  </style>
-  <rect x="40" y="35" width="50" height="65" rx="4" class="primary" />
-  <rect x="100" y="35" width="50" height="65" rx="4" class="secondary" />
-  <rect x="160" y="35" width="50" height="65" rx="4" class="accent" />
-  <rect x="45" y="45" width="40" height="4" rx="2" fill="white" />
-  <rect x="45" y="55" width="30" height="4" rx="2" fill="white" />
-  <rect x="45" y="65" width="35" height="4" rx="2" fill="white" />
-  <rect x="105" y="45" width="40" height="4" rx="2" fill="white" />
-  <rect x="105" y="55" width="25" height="4" rx="2" fill="white" />
-  <rect x="105" y="65" width="38" height="4" rx="2" fill="white" />
-  <rect x="165" y="45" width="35" height="4" rx="2" fill="white" />
-  <rect x="165" y="55" width="40" height="4" rx="2" fill="white" />
-  <rect x="165" y="65" width="28" height="4" rx="2" fill="white" />
-  <circle cx="320" cy="60" r="30" class="accent" opacity="0.8" />
-  <text x="230" y="75" class="logo-text" font-size="36" fill="#1e40af">NoteFlow</text>
-</svg>
+# 📝 NoteFlow
 
-<div align="center">
-  
-[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
-[![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <b>AI-powered note-taking application built with Laravel</b>
+  <br><br>
+  <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat&logo=laravel&logoColor=white" alt="Laravel"></a>
+  <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat&logo=php&logoColor=white" alt="PHP"></a>
+  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=flat&logo=tailwind-css&logoColor=white" alt="Tailwind"></a>
+  <a href="https://alpinejs.dev"><img src="https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=flat&logo=alpine.js&logoColor=white" alt="Alpine.js"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat" alt="License"></a>
+</p>
 
-</div>
-
-# NoteFlow
-
-> A powerful AI-assisted note-taking application built with Laravel
+---
 
 NoteFlow is a web application that helps you manage and organize your notes efficiently. It's designed as a NotebookLM clone with AI-powered features for enhanced note-taking and interaction. Transform your notes with intelligent AI assistance using Gemini and Mistral models.
 
-<div align="center">
-
-[Installation](#installation) •
-[Features](#features) •
-[Screenshots](#screenshots) •
-[Development](#development) •
-[License](#license)
-
-</div>
+<p align="center">
+  <a href="#installation">Installation</a> •
+  <a href="#features">Features</a> •
+  <a href="#screenshots">Screenshots</a> •
+  <a href="#development">Development</a> •
+  <a href="#license">License</a>
+</p>
 
 ## ✨ Features
 
