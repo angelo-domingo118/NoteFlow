@@ -17,16 +17,16 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 {{ !request()->routeIs('profile.edit') ? 'overflow-hidden' : '' }}">
+<body class="font-sans antialiased h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
     <div class="min-h-screen">
         @if(!request()->routeIs('notebooks.show'))
             @include('layouts.navigation')
         @endif
         
         <!-- Page Content -->
-        <main class="pt-16">
+        <main class="pt-16 relative" style="z-index: 0">
             @if(!request()->routeIs('notebooks.show'))
-                <header class="bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg border-b border-gray-200/20 dark:border-gray-700/20 shadow">
+                <header class="bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg border-b border-gray-200/20 dark:border-gray-700/20 shadow relative" style="z-index: 50">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header ?? '' }}
                     </div>

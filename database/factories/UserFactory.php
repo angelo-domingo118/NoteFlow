@@ -41,4 +41,17 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * Configure the model factory to create a test user with predefined credentials.
+     */
+    public function testUser(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+    }
 }

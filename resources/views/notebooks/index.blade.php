@@ -1,7 +1,38 @@
 <x-app-layout>
-    <x-slot name="header">
+    <x-slot name="header" class="relative" style="isolation: isolate;">
         <!-- Replace Alpine store with traditional JavaScript for view mode -->
         <script>
+            // Function to handle form submission and reset
+            function handleFormSubmission(clearSearch = false) {
+                const form = document.getElementById('search-form');
+                const input = document.getElementById('search-input');
+                const sortInput = form.querySelector('input[name="sort"]');
+                const currentSort = document.getElementById('sort-by')?.value || '{{ request('sort', 'recent') }}';
+                
+                if (clearSearch) {
+                    input.value = '';
+                }
+                
+                // Ensure we keep the current sort when submitting
+                sortInput.value = currentSort;
+                
+                form.submit();
+            }
+            
+            // Function to reset search
+            function resetSearch(event) {
+                event.preventDefault();
+                handleFormSubmission(true);
+            }
+            
+            // Function to handle search input changes
+            function handleSearchInput(event) {
+                const input = event.target;
+                if (input.value.length === 0) {
+                    handleFormSubmission(true);
+                }
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 // Get view mode from localStorage or default to grid
                 const viewMode = localStorage.getItem('viewMode') || 'grid';
@@ -154,7 +185,7 @@
             }
         </script>
         
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between relative" style="z-index: 9999; isolation: isolate;">
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
                     Welcome to NoteFlow
@@ -164,6 +195,39 @@
                 </p>
             </div>
             <div class="flex items-center space-x-4">
+                <!-- Search Bar -->
+                <form id="search-form" action="{{ route('notebooks.index') }}" method="GET" class="relative flex items-center gap-2">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            name="search" 
+                            id="search-input"
+                            placeholder="Search notebooks..." 
+                            value="{{ $search ?? '' }}"
+                            class="w-64 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/20 dark:bg-gray-800/40 backdrop-blur-lg text-sm text-gray-700 dark:text-gray-300 py-2 pl-10 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 shadow-sm"
+                            oninput="handleSearchInput(event)"
+                        >
+                        @if($search)
+                            <button 
+                                type="button"
+                                onclick="resetSearch(event)"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
+                    <!-- Hidden sort input to maintain sort when searching -->
+                    <input type="hidden" name="sort" value="{{ request('sort', 'recent') }}">
+                </form>
+                
                 <!-- Grid/List Toggle -->
                 <div class="flex items-center rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
                     <button id="grid-view-btn" type="button" class="p-2 hover:text-gray-900 dark:hover:text-white transition-colors rounded-l-lg">
@@ -181,15 +245,18 @@
                 <!-- Sort Dropdown with form submission -->
                 <form id="sort-form" action="{{ route('notebooks.index') }}" method="GET" class="hidden">
                     <input type="hidden" id="sort-by" name="sort" value="{{ request('sort', 'recent') }}">
+                    @if($search)
+                    <input type="hidden" name="search" value="{{ $search }}">
+                    @endif
                 </form>
-                <div class="relative">
+                <div class="relative z-[100]">
                     <button id="sort-dropdown-btn" type="button" class="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white/20 dark:bg-gray-800/40 backdrop-blur-lg border border-gray-200/20 dark:border-gray-500/20 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                         </svg>
                         <span id="current-sort">{{ request('sort') === 'alpha' ? 'Alphabetical' : (request('sort') === 'modified' ? 'Last Modified' : 'Most Recent') }}</span>
                     </button>
-                    <div id="sort-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 z-50">
+                    <div id="sort-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 z-[9999]">
                         <div class="py-1">
                             <button data-sort="recent" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">Most Recent</button>
                             <button data-sort="alpha" class="sort-option block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">Alphabetical</button>
@@ -209,7 +276,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+            <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Empty State -->
             <div style="<?php echo count($notebooks) ? 'display: none;' : ''; ?>" class="text-center py-12 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg border border-gray-200/20 dark:border-gray-700/20 rounded-xl shadow-sm">
@@ -229,7 +296,7 @@
             </div>
 
             <!-- Grid View -->
-            <div id="grid-view" style="<?php echo count($notebooks) ? '' : 'display: none;'; ?>" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-visible">
+            <div id="grid-view" style="<?php echo count($notebooks) ? '' : 'display: none;'; ?>" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-visible relative z-0">
                 @foreach ($notebooks as $notebook)
                 <div class="relative group">
                     <div class="block p-6 bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 border border-gray-200/20 dark:border-gray-700/20 relative">
@@ -242,13 +309,13 @@
                                     </p>
                                 </a>
                             </div>
-                            <div class="relative ml-2 z-40 isolation-auto">
+                            <div class="relative ml-2 z-20 isolation-auto">
                                 <button id="menu-button-{{ $notebook->id }}" type="button" onclick="event.stopPropagation(); toggleMenu('{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                     </svg>
                                 </button>
-                                <div id="menu-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-50 border border-gray-200/20 dark:border-gray-700/20">
+                                <div id="menu-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-30 border border-gray-200/20 dark:border-gray-700/20">
                                     <div class="py-1">
                                         <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
                                             Edit
@@ -284,7 +351,7 @@
             </div>
 
             <!-- List View -->
-            <div id="list-view" style="<?php echo count($notebooks) ? 'display: none;' : ''; ?>" class="rounded-xl bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg shadow-sm border border-gray-200/20 dark:border-gray-700/20 overflow-visible">
+            <div id="list-view" style="<?php echo count($notebooks) ? 'display: none;' : ''; ?>" class="rounded-xl bg-white/10 dark:bg-gray-800/30 backdrop-blur-lg shadow-sm border border-gray-200/20 dark:border-gray-700/20 overflow-visible relative z-0">
                 <ul role="list" class="divide-y divide-gray-200/20 dark:divide-gray-700/20">
                     @foreach ($notebooks as $notebook)
                     <li class="relative hover:bg-gray-50/30 dark:hover:bg-gray-700/50 transition-colors">
@@ -294,13 +361,13 @@
                                     <h3 class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">{{ $notebook->title }}</h3>
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $notebook->description ?? 'No description' }}</p>
                                 </a>
-                                <div class="ml-4 flex-shrink-0 relative z-40 isolation-auto">
+                                <div class="ml-4 flex-shrink-0 relative z-20 isolation-auto">
                                     <button id="menu-button-list-{{ $notebook->id }}" type="button" onclick="event.stopPropagation(); toggleMenu('list-{{ $notebook->id }}')" class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                         </svg>
                                     </button>
-                                    <div id="menu-list-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-50 border border-gray-200/20 dark:border-gray-700/20">
+                                    <div id="menu-list-{{ $notebook->id }}" class="hidden notebook-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg ring-1 ring-black/5 z-30 border border-gray-200/20 dark:border-gray-700/20">
                                         <div class="py-1">
                                             <button onclick="openModal('edit-notebook-{{ $notebook->id }}'); toggleMenu('list-{{ $notebook->id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50">
                                                 Edit

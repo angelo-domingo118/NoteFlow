@@ -26,8 +26,14 @@ class NotebookController extends ApiController
     public function index(Request $request): View
     {
         $sort = $request->query('sort', 'recent');
+        $search = $request->query('search');
         
         $query = auth()->user()->notebooks();
+        
+        // Apply search filter if provided
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
         
         switch ($sort) {
             case 'alpha':
@@ -44,7 +50,7 @@ class NotebookController extends ApiController
         
         $notebooks = $query->withCount(['notes', 'sources'])->get();
 
-        return view('notebooks.index', compact('notebooks'));
+        return view('notebooks.index', compact('notebooks', 'search'));
     }
 
     /**
